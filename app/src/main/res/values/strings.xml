@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">TO-DO</string>
+    <string name="action_settings">Settings</string>
+    <string name="to_do_list">TO-DO List</string>
+    <string name="statistics">Statistics</string>
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
+    <string name="all_to_do_s">All TO-DOs</string>
+</resources>
