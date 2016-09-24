@@ -20,6 +20,7 @@
             android:popupTheme="@style/AppTheme.PopupOverlay">
 
             <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/deleteTodo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
@@ -36,27 +37,26 @@
         android:padding="16dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <android.support.v7.widget.AppCompatCheckBox
-            android:id="@+id/detailedSelectableCheckbox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/detailedNoteTv"
-            android:layout_alignTop="@+id/detailedTitleTv"
-            android:layout_marginRight="10dp"/>
+        <!--<android.support.v7.widget.AppCompatCheckBox-->
+        <!--android:id="@+id/detailedSelectableCheckbox"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignBottom="@+id/detailedNoteTv"-->
+        <!--android:layout_alignTop="@+id/detailedTitleTv"-->
+        <!--android:layout_marginRight="10dp"/>-->
 
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/detailedTitleTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/detailedSelectableCheckbox"
+
             android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"/>
 
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/detailedNoteTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/detailedTitleTv"
-            android:layout_toRightOf="@id/detailedSelectableCheckbox"/>
+            android:layout_below="@id/detailedTitleTv"/>
 
     </RelativeLayout>
 

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/individualListRow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
                 android:orientation="vertical"
-                android:id="@+id/individualListRow"
                 android:padding="16dp">
 
     <android.support.v7.widget.AppCompatCheckBox
@@ -16,17 +16,17 @@
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"/>
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
         android:id="@+id/title_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginLeft="10dp"
         android:layout_toRightOf="@id/checkbox"
-        android:text="Hello world"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:text="Hello world djfhsgjfhg sbdfjdhsjfhsdgj nbsjdfjsdhgj"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
-        android:textColor="@color/colorPrimaryText"
-    />
-
+        android:textColor="@color/colorPrimaryText"/>
 
 </RelativeLayout>

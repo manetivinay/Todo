@@ -10,6 +10,7 @@ import android.os.Parcelable;
 public class Todo implements Parcelable {
     private String title, notes;
     private boolean isChecked;
+    private int id;
 
     public Todo() {
 
@@ -22,6 +23,7 @@ public class Todo implements Parcelable {
     }
 
     protected Todo(Parcel in) {
+        id = in.readInt();
         title = in.readString();
         notes = in.readString();
         isChecked = in.readByte() != 0; //isChecked = (in.readInt() == 0) ? false : true;
@@ -39,6 +41,13 @@ public class Todo implements Parcelable {
             return new Todo[size];
         }
     };
+
+    public Todo(int id, String stringTitle, String stringNotes, boolean checkboxStatus) {
+        this.id = id;
+        this.title = stringTitle;
+        this.notes = stringNotes;
+        this.isChecked = checkboxStatus;
+    }
 
     public String getTitle() {
         return title;
@@ -64,6 +73,14 @@ public class Todo implements Parcelable {
         isChecked = checked;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -71,6 +88,7 @@ public class Todo implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
         dest.writeString(title);
         dest.writeString(notes);
         dest.writeInt(isChecked ? 1 : 0);

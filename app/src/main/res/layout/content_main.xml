@@ -14,11 +14,17 @@
         android:id="@+id/headingTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:padding="5dp"
         android:text="@string/all_to_do_s"
-        android:textStyle="bold"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"/>
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+        android:textStyle="bold"/>
     />
+
+    <View android:layout_width="match_parent"
+          android:layout_height="1dp"
+          android:layout_below="@id/headingTitle"
+          android:background="@color/colorDivider"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
@@ -26,5 +32,16 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/headingTitle"
         android:scrollbars="vertical"/>
+
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/emptyTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:text="@string/empty_message_display"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+    />
 
 </RelativeLayout>

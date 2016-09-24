@@ -2,37 +2,35 @@ package com.vinaymaneti.todo;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    public static final String POSITION = "position";
-    public static final String LIST_DATA = "list_data";
-    public static final String ENTIRE_LIST = "entire_list";
-    private static final int REQUEST_CODE = 1;
+    public static final String KEY_DATABASE_ID = "database_id";
     private DrawerLayout mDrawerLayout;
     private Toolbar mToolbar;
     private RecyclerView mRecyclerView;
     private TodoAdapter mTodoAdapter;
-    private ArrayList<Todo> mTodoList = new ArrayList<>();
+    private List<Todo> mTodoList = new ArrayList<>();
+    private DatabaseHandler mDatabaseHandler;
+    private AppCompatTextView emptyTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
-        int total = mTodoList.size();
+        mDatabaseHandler = new DatabaseHandler(this);
         initNavigationDrawer();
         initRecyclerView();
         initFloatActionButton();
@@ -49,100 +47,57 @@ public class MainActivity extends AppCompatActivity {
 
     private void initRecyclerView() {
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        mTodoAdapter = new TodoAdapter(mTodoList);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mRecyclerView.addItemDecoration(new DivideritemDecoration(this, LinearLayoutManager.VERTICAL));
-        mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), mRecyclerView, new ClickListener() {
+        emptyTextView = (AppCompatTextView) findViewById(R.id.emptyTextView);
+        mTodoList = mDatabaseHandler.getAllTodolist();
+        if (mTodoList.isEmpty()) {
+            mRecyclerView.setVisibility(View.GONE);
+            emptyTextView.setVisibility(View.VISIBLE);
+        } else {
+            mRecyclerView.setVisibility(View.VISIBLE);
+            emptyTextView.setVisibility(View.GONE);
+        }
 
+        int total = mDatabaseHandler.getTodoListCount();
+        Log.d("total", String.valueOf(total));
+        mTodoAdapter = new TodoAdapter(mTodoList, new ClickListener() {
             @Override
             public void onClick(View view, int position) {
                 Todo todo = mTodoList.get(position);
-                Toast.makeText(getApplicationContext(), todo.getTitle() + "is selected", Toast.LENGTH_SHORT).show();
+                int id = todo.getId();
                 Intent intent = new Intent(MainActivity.this, DetailedActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putInt(POSITION, position);
-                bundle.putParcelable(LIST_DATA, todo);
-                intent.putExtras(bundle);
+                intent.putExtra(KEY_DATABASE_ID, id);
                 startActivity(intent);
+            }
+
+            @Override
+            public void onCheckBoxSelected(View view, int position, boolean isChecked) {
+                Todo todo = mTodoList.get(position);
+                int id = todo.getId();
+                todo.setChecked(isChecked);
+                mDatabaseHandler.updateCheckboxStatus(todo);
             }
 
             @Override
             public void onLongClick(View view, int position) {
 
             }
-        }));
+        });
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.addItemDecoration(new DivideritemDecoration(this, LinearLayoutManager.VERTICAL));
         mRecyclerView.setAdapter(mTodoAdapter);
+        mTodoAdapter.notifyDataSetChanged();
 
-        prepareTodoListData();
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
-            Bundle bundle = data.getExtras();
-            Todo todo = bundle.getParcelable("newData");
-            mTodoList.add(todo);
+        if (requestCode == DetailedActivity.REQUEST_CODE && resultCode == RESULT_OK) {
             mTodoAdapter.notifyDataSetChanged();
         }
-    }
-
-    private void prepareTodoListData() {
-        Todo todo = new Todo(false, "Mad Max: Fury Road", "Action & Adventure");
-        mTodoList.add(todo);
-
-        todo = new Todo(true, "Inside Out", "Animation, Kids & Family");
-        mTodoList.add(todo);
-
-        todo = new Todo(true, "The Martian", "Science Fiction & Fantasy");
-        mTodoList.add(todo);
-
-        todo = new Todo(false, "Mission: Impossible Rogue Nation", "Action");
-        mTodoList.add(todo);
-
-        todo = new Todo(false, "Star Trek", "Science Fiction");
-        mTodoList.add(todo);
-
-        todo = new Todo(true, "Inside Out", "Animation, Kids & Family");
-        mTodoList.add(todo);
-
-        todo = new Todo(true, "The Martian", "Science Fiction & Fantasy");
-        mTodoList.add(todo);
-
-        todo = new Todo(false, "Mission: Impossible Rogue Nation", "Action");
-        mTodoList.add(todo);
-
-        todo = new Todo(false, "Star Trek", "Science Fiction");
-        mTodoList.add(todo);
-
-        todo = new Todo(true, "Inside Out", "Animation, Kids & Family");
-        mTodoList.add(todo);
-
-        todo = new Todo(true, "The Martian", "Science Fiction & Fantasy");
-        mTodoList.add(todo);
-
-        todo = new Todo(false, "Mission: Impossible Rogue Nation", "Action");
-        mTodoList.add(todo);
-
-        todo = new Todo(false, "Star Trek", "Science Fiction");
-        mTodoList.add(todo);
-
-        todo = new Todo(true, "Inside Out", "Animation, Kids & Family");
-        mTodoList.add(todo);
-
-        todo = new Todo(true, "The Martian", "Science Fiction & Fantasy");
-        mTodoList.add(todo);
-
-        todo = new Todo(false, "Mission: Impossible Rogue Nation", "Action");
-        mTodoList.add(todo);
-
-        todo = new Todo(false, "Star Trek", "Science Fiction");
-        mTodoList.add(todo);
-
-        mTodoAdapter.notifyDataSetChanged();
-
     }
 
     private void initFloatActionButton() {
@@ -150,11 +105,8 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
                 Intent createIntent = new Intent(MainActivity.this, CreateTodoActivity.class);
-                createIntent.putParcelableArrayListExtra(ENTIRE_LIST, mTodoList);
-                startActivityForResult(createIntent, REQUEST_CODE);
+                startActivity(createIntent);
             }
         });
     }
@@ -180,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         View header = navigationView.getHeaderView(0);
-        TextView tvTitle = (TextView) header.findViewById(R.id.tv_email);
+        TextView appNameTv = (TextView) header.findViewById(R.id.app_name_tv);
 
 
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.drawer_open, R.string.drawer_close) {
@@ -220,5 +172,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
     }
 }
