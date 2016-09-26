@@ -7,26 +7,28 @@ import android.os.Parcelable;
  * Created by vinaymaneti on 9/21/16.
  */
 
-public class Todo implements Parcelable {
-    private String title, notes;
+class Todo implements Parcelable {
+    private String title, notes, dateTimeRemainder;
     private boolean isChecked;
     private int id;
 
-    public Todo() {
+    Todo() {
 
     }
 
-    public Todo(boolean isChecked, String title, String notes) {
+    Todo(boolean isChecked, String title, String notes, String dateTimeRemainder) {
         this.isChecked = isChecked;
         this.title = title;
         this.notes = notes;
+        this.dateTimeRemainder = dateTimeRemainder;
     }
 
-    protected Todo(Parcel in) {
+    private Todo(Parcel in) {
         id = in.readInt();
         title = in.readString();
         notes = in.readString();
         isChecked = in.readByte() != 0; //isChecked = (in.readInt() == 0) ? false : true;
+        dateTimeRemainder = in.readString();
 
     }
 
@@ -42,11 +44,12 @@ public class Todo implements Parcelable {
         }
     };
 
-    public Todo(int id, String stringTitle, String stringNotes, boolean checkboxStatus) {
+    Todo(int id, String stringTitle, String stringNotes, boolean checkboxStatus, String dateTimeRemainder) {
         this.id = id;
         this.title = stringTitle;
         this.notes = stringNotes;
         this.isChecked = checkboxStatus;
+        this.dateTimeRemainder = dateTimeRemainder;
     }
 
     public String getTitle() {
@@ -57,19 +60,19 @@ public class Todo implements Parcelable {
         this.title = title;
     }
 
-    public String getNotes() {
+    String getNotes() {
         return notes;
     }
 
-    public void setNotes(String notes) {
+    void setNotes(String notes) {
         this.notes = notes;
     }
 
-    public boolean isChecked() {
+    boolean isChecked() {
         return isChecked;
     }
 
-    public void setChecked(boolean checked) {
+    void setChecked(boolean checked) {
         isChecked = checked;
     }
 
@@ -79,6 +82,14 @@ public class Todo implements Parcelable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    String getDateTimeRemainder() {
+        return dateTimeRemainder;
+    }
+
+    void setDateTimeRemainder(String dateTimeRemainder) {
+        this.dateTimeRemainder = dateTimeRemainder;
     }
 
     @Override
@@ -92,5 +103,6 @@ public class Todo implements Parcelable {
         dest.writeString(title);
         dest.writeString(notes);
         dest.writeInt(isChecked ? 1 : 0);
+        dest.writeString(dateTimeRemainder);
     }
 }

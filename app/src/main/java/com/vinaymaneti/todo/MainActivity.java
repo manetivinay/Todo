@@ -1,19 +1,23 @@
 package com.vinaymaneti.todo;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,11 +30,11 @@ public class MainActivity extends AppCompatActivity {
     public static final String KEY_DATABASE_ID = "database_id";
     private DrawerLayout mDrawerLayout;
     private Toolbar mToolbar;
-    private RecyclerView mRecyclerView;
     private TodoAdapter mTodoAdapter;
     private List<Todo> mTodoList = new ArrayList<>();
     private DatabaseHandler mDatabaseHandler;
-    private AppCompatTextView emptyTextView;
+    private AppCompatImageView filterIv;
+    private CoordinatorLayout coordinatorLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,34 +43,78 @@ public class MainActivity extends AppCompatActivity {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
+        if (!((TodoApplication) getApplicationContext()).toasted) {
+            Snackbar snackbar = Snackbar
+                    .make(coordinatorLayout, R.string.welcome_app_message, Snackbar.LENGTH_LONG);
+
+            snackbar.show();
+            ((TodoApplication) getApplicationContext()).toasted = true;
+        }
+
         mDatabaseHandler = new DatabaseHandler(this);
         initNavigationDrawer();
         initRecyclerView();
         initFloatActionButton();
+        initFilterIv();
+    }
+
+    private void initFilterIv() {
+        filterIv = (AppCompatImageView) findViewById(R.id.filterIV);
+        filterIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAlertToDeleteAllMarkedTask();
+            }
+        });
+    }
+
+    private void showAlertToDeleteAllMarkedTask() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.MyDialogTheme);
+        builder.setTitle(R.string.delete_title_text);
+        builder.setMessage(R.string.delete_message_text);
+
+        String positiveText = getString(R.string.ok);
+        builder.setPositiveButton(positiveText, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+        String negativeText = getString(R.string.cancel);
+        builder.setNegativeButton(negativeText, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void initRecyclerView() {
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        emptyTextView = (AppCompatTextView) findViewById(R.id.emptyTextView);
-        mTodoList = mDatabaseHandler.getAllTodolist();
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        AppCompatTextView emptyTextView = (AppCompatTextView) findViewById(R.id.emptyTextView);
+        mTodoList = mDatabaseHandler.getAllTodoList();
         if (mTodoList.isEmpty()) {
-            mRecyclerView.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.GONE);
             emptyTextView.setVisibility(View.VISIBLE);
         } else {
-            mRecyclerView.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.VISIBLE);
             emptyTextView.setVisibility(View.GONE);
         }
 
-        int total = mDatabaseHandler.getTodoListCount();
-        Log.d("total", String.valueOf(total));
         mTodoAdapter = new TodoAdapter(mTodoList, new ClickListener() {
             @Override
             public void onClick(View view, int position) {
-                Todo todo = mTodoList.get(position);
-                int id = todo.getId();
-                Intent intent = new Intent(MainActivity.this, DetailedActivity.class);
-                intent.putExtra(KEY_DATABASE_ID, id);
-                startActivity(intent);
+                if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
+                    Todo todo = mTodoList.get(position);
+                    int id = todo.getId();
+                    Intent intent = new Intent(MainActivity.this, DetailedActivity.class);
+                    intent.putExtra(KEY_DATABASE_ID, id);
+                    startActivity(intent);
+                }
             }
 
             @Override
@@ -83,10 +131,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mRecyclerView.addItemDecoration(new DivideritemDecoration(this, LinearLayoutManager.VERTICAL));
-        mRecyclerView.setAdapter(mTodoAdapter);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addItemDecoration(new DivideritemDecoration(this, LinearLayoutManager.VERTICAL));
+        recyclerView.setAdapter(mTodoAdapter);
         mTodoAdapter.notifyDataSetChanged();
 
     }
@@ -123,6 +171,8 @@ public class MainActivity extends AppCompatActivity {
                         mDrawerLayout.closeDrawers();
                         break;
                     case R.id.statistics:
+                        Intent statisticsIntentn = new Intent(MainActivity.this, StatisticsActivity.class);
+                        startActivity(statisticsIntentn);
                         mDrawerLayout.closeDrawers();
                         break;
                 }

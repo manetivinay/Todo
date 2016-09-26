@@ -1,8 +1,10 @@
 package com.vinaymaneti.todo;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
@@ -21,6 +23,7 @@ public class DetailedActivity extends AppCompatActivity {
     private FloatingActionButton mDetailEditButton;
     private DatabaseHandler mDatabaseHandler;
     private AppCompatImageView mDeleteTodo;
+    private AppCompatTextView mDetailedDateTimeView;
 
     int database_id;
     Todo mDatabaseHandlerTodo;
@@ -33,27 +36,8 @@ public class DetailedActivity extends AppCompatActivity {
         initUi();
         initToolbar();
         initFloatActionButton();
-
-        mDetailEditButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                Snackbar.make(v, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-                Intent intent = new Intent(DetailedActivity.this, CreateTodoActivity.class);
-                intent.putExtra(MainActivity.KEY_DATABASE_ID, database_id);
-                startActivity(intent);
-            }
-        });
-
-        mDeleteTodo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Todo deleteTask = mDatabaseHandler.getTodo(database_id);
-                deleteTask.getId();
-                mDatabaseHandler.deleteTodoList(deleteTask);
-                startActivityForResult(new Intent(DetailedActivity.this, MainActivity.class), REQUEST_CODE);
-            }
-        });
+        onClickEditButton();
+        onClickDelete();
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
@@ -64,7 +48,62 @@ public class DetailedActivity extends AppCompatActivity {
         if (database_id >= 0 && mDatabaseHandlerTodo != null) {
             mDetailedTitleTextView.setText(mDatabaseHandlerTodo.getTitle());
             mDetailedNoteTextView.setText(mDatabaseHandlerTodo.getNotes());
+            if (mDatabaseHandlerTodo.getDateTimeRemainder() != null) {
+                mDetailedDateTimeView.setVisibility(View.VISIBLE);
+                mDetailedDateTimeView.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.icon_clock, 0, 0, 0);
+                String dateTimeValue = "   " + mDatabaseHandlerTodo.getDateTimeRemainder();
+                mDetailedDateTimeView.setText(dateTimeValue);
+            }
         }
+    }
+
+    private void onClickDelete() {
+        mDeleteTodo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDeletingTodoTask();
+            }
+        });
+    }
+
+    private void showDeletingTodoTask() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(DetailedActivity.this, R.style.MyDialogTheme);
+        builder.setTitle(R.string.delete_title_text);
+        builder.setMessage(R.string.delete_message_text);
+
+        String positiveText = getString(R.string.ok);
+        builder.setPositiveButton(positiveText, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Todo deleteTask = mDatabaseHandler.getTodo(database_id);
+                mDatabaseHandler.deleteTodoList(deleteTask);
+                startActivityForResult(new Intent(DetailedActivity.this, MainActivity.class), REQUEST_CODE);
+            }
+        });
+
+        String negativeText = getString(R.string.cancel);
+        builder.setNegativeButton(negativeText, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void onClickEditButton() {
+        mDetailEditButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                Snackbar.make(v, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+                Intent intent = new Intent(DetailedActivity.this, CreateTodoActivity.class);
+                intent.putExtra(MainActivity.KEY_DATABASE_ID, database_id);
+                startActivity(intent);
+            }
+        });
     }
 
     private void initFloatActionButton() {
@@ -92,8 +131,8 @@ public class DetailedActivity extends AppCompatActivity {
         mDetailedTitleTextView = (AppCompatTextView) findViewById(R.id.detailedTitleTv);
         mDetailedNoteTextView = (AppCompatTextView) findViewById(R.id.detailedNoteTv);
         mDetailEditButton = (FloatingActionButton) findViewById(R.id.editFab);
-        mDeleteTodo = (AppCompatImageView) findViewById(R.id.deleteTodo
-        );
+        mDeleteTodo = (AppCompatImageView) findViewById(R.id.deleteTodo);
+        mDetailedDateTimeView = (AppCompatTextView) findViewById(R.id.detailed_date_display);
     }
 
     @Override

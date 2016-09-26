@@ -26,12 +26,12 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
         final Calendar c = Calendar.getInstance();
         int hour = c.get(Calendar.HOUR);
         int minutes = c.get(Calendar.MINUTE);
+
         return new TimePickerDialog(getActivity(), this, hour, minutes, DateFormat.is24HourFormat(getActivity()));
     }
 
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-//        String time = String.valueOf(hourOfDay) + ":" + String.valueOf(minute);
         this.mOnTimePickerSelectionListener.onCompleteTimeSelected(String.valueOf(hourOfDay), String.valueOf(minute));
     }
 
@@ -40,7 +40,6 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
     }
 
     @Override
-
     public void onAttach(Context context) {
         super.onAttach(context);
         try {

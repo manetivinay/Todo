@@ -16,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.Locale;
 
@@ -30,92 +31,114 @@ public class CreateTodoActivity extends AppCompatActivity
     private AppCompatTextView mDateAndTime;
     private AppCompatTextView dateSelector;
     private AppCompatTextView timeSelection;
-
+    private AppCompatImageView remainderImageView;
+    private Toolbar createToolbar;
+    private FloatingActionButton fab;
     int databaseId;
-    String mDate, mHours, mMinutes, time;
+    String mDate, mHours, mMinutes, formatTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_edit_layout);
-
+        initUI();
+        initToolbar();
         mDatabaseHandler = new DatabaseHandler(this);
-        Toolbar createToolbar = (Toolbar) findViewById(R.id.createEditToolBar);
+        onClickRemainderButton();
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            existingDataEditFunctionality(fab, extras);
+        } else {
+            createNewFunctionality(fab);
+        }
+    }
+
+    private void onClickRemainderButton() {
+        remainderImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showRemainder(mDatabaseHandler);
+            }
+        });
+    }
+
+    private void initToolbar() {
         setSupportActionBar(createToolbar);
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
 
+    private void initUI() {
+        createToolbar = (Toolbar) findViewById(R.id.createEditToolBar);
         mDateAndTime = (AppCompatTextView) findViewById(R.id.date_display);
         mDateAndTime.setCompoundDrawablesWithIntrinsicBounds(
                 R.drawable.icon_clock, 0, 0, 0);
 
         titleTv = (AppCompatEditText) findViewById(R.id.etTodoTitle);
         descriptionTv = (AppCompatEditText) findViewById(R.id.descriptionTv);
-        AppCompatImageView remainderImageView = (AppCompatImageView) findViewById(R.id.remainderIv);
-        remainderImageView.setOnClickListener(new View.OnClickListener() {
+        fab = (FloatingActionButton) findViewById(R.id.createFab);
+        remainderImageView = (AppCompatImageView) findViewById(R.id.remainderIv);
+    }
+
+    private void createNewFunctionality(FloatingActionButton fab) {
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                showRemainder();
+            public void onClick(View view) {
+
+                if (!validateTitle() || !validateNotes()) {
+                    return;
+                }
+                Todo todoList = new Todo();
+                todoList.setTitle(titleTv.getText().toString());
+                todoList.setNotes(descriptionTv.getText().toString());
+                todoList.setChecked(false);
+                todoList.setDateTimeRemainder(getDateTime(mDate, formatTime));
+                mDatabaseHandler.addTodo(new Todo(todoList.isChecked(), todoList.getTitle(), todoList.getNotes(), todoList.getDateTimeRemainder()));
+                Intent createIntent = new Intent(CreateTodoActivity.this, MainActivity.class);
+                startActivity(createIntent);
             }
         });
-        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.createFab);
+    }
 
+    private void existingDataEditFunctionality(final FloatingActionButton fab, Bundle extras) {
         boolean status = false;
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            databaseId = extras.getInt(MainActivity.KEY_DATABASE_ID);
-            Todo databaseHandlerTodo = mDatabaseHandler.getTodo(databaseId);
-            if (databaseId >= 0 && databaseHandlerTodo != null) {
-                status = databaseHandlerTodo.isChecked();
-                titleTv.setText(databaseHandlerTodo.getTitle());
-                titleTv.setSelection(titleTv.getText().length());
-                descriptionTv.setText(databaseHandlerTodo.getNotes());
-                descriptionTv.setSelection(descriptionTv.getText().length());
+        databaseId = extras.getInt(MainActivity.KEY_DATABASE_ID);
+        Todo databaseHandlerTodo = mDatabaseHandler.getTodo(databaseId);
+        if (databaseId >= 0 && databaseHandlerTodo != null) {
+            status = databaseHandlerTodo.isChecked();
+            titleTv.setText(databaseHandlerTodo.getTitle());
+            titleTv.setSelection(titleTv.getText().length());
+            descriptionTv.setText(databaseHandlerTodo.getNotes());
+            descriptionTv.setSelection(descriptionTv.getText().length());
+            if (databaseHandlerTodo.getDateTimeRemainder() != null) {
+                mDateAndTime.setVisibility(View.VISIBLE);
+                String displayDateTImeValue = "   " + databaseHandlerTodo.getDateTimeRemainder();
+                mDateAndTime.setText(displayDateTImeValue);
             }
-
-            fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.icn_tick_mark_1));
-            final boolean finalStatus = status;
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    if (!validateTitle() || !validateNotes()) {
-                        return;
-                    }
-
-                    fab.setEnabled(false);
-                    Todo todoUpdateValues = new Todo();
-                    todoUpdateValues.setTitle(titleTv.getText().toString());
-                    todoUpdateValues.setNotes(descriptionTv.getText().toString());
-                    todoUpdateValues.setChecked(finalStatus);
-                    mDatabaseHandler.updateTodoList(new Todo(databaseId, todoUpdateValues.getTitle(), todoUpdateValues.getNotes(), todoUpdateValues.isChecked()));
-                    Intent createIntent = new Intent(CreateTodoActivity.this, MainActivity.class);
-                    startActivity(createIntent);
-                    finish();
-                }
-            });
-
-        } else {
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    if (!validateTitle() || !validateNotes()) {
-                        return;
-                    }
-                    Todo todoList = new Todo();
-                    todoList.setTitle(titleTv.getText().toString());
-                    todoList.setNotes(descriptionTv.getText().toString());
-                    todoList.setChecked(false);
-                    mDatabaseHandler.addTodo(new Todo(todoList.isChecked(), todoList.getTitle(), todoList.getNotes()));
-                    Intent createIntent = new Intent(CreateTodoActivity.this, MainActivity.class);
-                    startActivity(createIntent);
-                }
-            });
         }
 
+        fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.icn_tick_mark_1));
+        final boolean finalStatus = status;
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!validateTitle() || !validateNotes()) {
+                    return;
+                }
 
+                fab.setEnabled(false);
+                Todo todoUpdateValues = new Todo();
+                todoUpdateValues.setTitle(titleTv.getText().toString());
+                todoUpdateValues.setNotes(descriptionTv.getText().toString());
+                todoUpdateValues.setChecked(finalStatus);
+                todoUpdateValues.setDateTimeRemainder(getDateTime(mDate, formatTime));
+                mDatabaseHandler.updateTodoList(new Todo(databaseId, todoUpdateValues.getTitle(), todoUpdateValues.getNotes(), todoUpdateValues.isChecked(), todoUpdateValues.getDateTimeRemainder()));
+                Intent createIntent = new Intent(CreateTodoActivity.this, MainActivity.class);
+                startActivity(createIntent);
+                finish();
+            }
+        });
     }
 
     private boolean validateTitle() {
@@ -146,23 +169,18 @@ public class CreateTodoActivity extends AppCompatActivity
         return value;
     }
 
-    private void showRemainder() {
+    private void showRemainder(final DatabaseHandler databaseHandler) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.custom_dialog, null);
         builder.setView(dialogView);
         dateSelector = (AppCompatTextView) dialogView.findViewById(R.id.dateSelection);
         timeSelection = (AppCompatTextView) dialogView.findViewById(R.id.timeSelection);
-        if (mDate != null)
-            dateSelector.setText(mDate);
-        else
-            dateSelector.setText(R.string.select_date);
-
-        if (time != null)
-            timeSelection.setText(time);
-        else
-            timeSelection.setText(R.string.select_time);
-
+        if (databaseId > 0) {
+            getDateTimeValueFromDB(databaseHandler);
+        } else {
+            initialiseDateTimeValuesFromDialog();
+        }
 
         dateSelector.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -182,19 +200,94 @@ public class CreateTodoActivity extends AppCompatActivity
         builder.setPositiveButton(R.string.c_string, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
+                displayDateTimeAtBottomAfterSelection();
             }
         });
 
         builder.setNegativeButton(R.string.c_cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+                onTapDialogDismiss(dialog, databaseHandler);
             }
         });
 
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    private void onTapDialogDismiss(DialogInterface dialog, DatabaseHandler databaseHandler) {
+        Todo todo = databaseHandler.getTodo(databaseId);
+
+        if (todo == null)
+            return;
+
+        if (todo.getDateTimeRemainder() != null)
+            mDateAndTime.setVisibility(View.VISIBLE);
+        else
+            mDateAndTime.setVisibility(View.GONE);
+
+        mDate = null;
+        formatTime = null;
+        mHours = null;
+        mMinutes = null;
+        dialog.dismiss();
+    }
+
+    private void displayDateTimeAtBottomAfterSelection() {
+        if (mDate != null) {
+            mDateAndTime.setVisibility(View.VISIBLE);
+            if (formatTime == null)
+                mDateAndTime.setText("  " + mDate);
+            else
+                mDateAndTime.setText("  " + mDate + " " + formatTime);
+        } else {
+            mDateAndTime.setVisibility(View.GONE);
+        }
+
+        if (mDate == null && formatTime != null) {
+            Toast.makeText(CreateTodoActivity.this, "Please select Date", Toast.LENGTH_LONG).show();
+        }
+
+        if (formatTime != null) {
+            timeSelection.setText(formatTime);
+        }
+    }
+
+    private void initialiseDateTimeValuesFromDialog() {
+        if (mDate != null)
+            dateSelector.setText(mDate);
+        else
+            dateSelector.setText(R.string.select_date);
+
+        if (formatTime != null)
+            timeSelection.setText(formatTime);
+        else
+            timeSelection.setText(R.string.select_time);
+    }
+
+    private void getDateTimeValueFromDB(DatabaseHandler databaseHandler) {
+        Todo todo = databaseHandler.getTodo(databaseId);
+        if (todo == null)
+            return;
+        String dateTimeRemainder = todo.getDateTimeRemainder();
+        if (dateTimeRemainder != null) {
+            String[] dateTimeSeparation = dateTimeRemainder.split("\\s+");
+            String dateSeparationValue = dateTimeSeparation[0];
+            String timeSeparationValue = dateTimeSeparation[1];
+
+            if (dateSeparationValue != null)
+                dateSelector.setText(dateSeparationValue);
+            else
+                dateSelector.setText(R.string.select_date);
+
+            if (timeSeparationValue != null)
+                timeSelection.setText(timeSeparationValue);
+            else
+                timeSelection.setText(R.string.select_time);
+        } else {
+            dateSelector.setText(R.string.select_date);
+            timeSelection.setText(R.string.select_time);
+        }
     }
 
     private void showTimePickerDialog(View v) {
@@ -218,27 +311,29 @@ public class CreateTodoActivity extends AppCompatActivity
     @Override
     public void onCompleteDateSelected(String date) {
         this.mDate = date;
-        if (mDate != null) {
-            mDateAndTime.setVisibility(View.VISIBLE);
-            mDateAndTime.setText("  " + mDate + " ");
+        if (mDate != null)
             dateSelector.setText(mDate);
-        } else {
-            mDateAndTime.setText(R.string.select_date);
-            mDateAndTime.setVisibility(View.GONE);
-        }
-
+        else
+            dateSelector.setText(R.string.select_date);
     }
 
     @Override
     public void onCompleteTimeSelected(String hours, String minutes) {
         this.mHours = hours;
         this.mMinutes = minutes;
-        String time = String.format(Locale.ENGLISH, "%02d:%02d", Integer.parseInt(mHours), Integer.parseInt(mMinutes));
-        if (time != null) {
-            mDateAndTime.append(time);
-            timeSelection.setText(time);
-        } else
-            mDateAndTime.setText(R.string.select_time);
+        formatTime = String.format(Locale.ENGLISH, "%02d:%02d", Integer.parseInt(mHours), Integer.parseInt(mMinutes));
+        if (mHours != null && mMinutes != null)
+            timeSelection.setText(formatTime);
+        else
+            timeSelection.setText(R.string.select_time);
+    }
+
+    private String getDateTime(String date, String hours) {
+        if (hours == null) {
+            return date;
+        } else {
+            return date + " " + hours;
+        }
     }
 
 }

@@ -28,6 +28,7 @@
                 android:background="?attr/colorPrimary"
                 app:popupTheme="@style/AppTheme.PopupOverlay">
                 <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/filterIV"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"

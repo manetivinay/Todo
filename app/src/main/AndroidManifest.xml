@@ -3,6 +3,7 @@
           package="com.vinaymaneti.todo">
 
     <application
+        android:name=".TodoApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -28,9 +29,15 @@
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
-        <activity android:name=".CreateTodoActivity"
-                  android:label="@string/app_name"
-                  android:theme="@style/AppTheme.NoActionBar">
+        <activity
+            android:name=".CreateTodoActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+            android:name=".StatisticsActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>
 

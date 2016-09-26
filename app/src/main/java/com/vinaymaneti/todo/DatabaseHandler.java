@@ -17,7 +17,7 @@ import java.util.List;
 public class DatabaseHandler extends SQLiteOpenHelper {
     //All static variables
     //Data base version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;  // here I upgrade the database version from 1 to 2
 
     // Database name
     private static final String DATABASE_NAME = "todoListOrganiser";
@@ -30,7 +30,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String KEY_TITLE = "title";
     public static final String KEY_NOTES = "notes";
     public static final String KEY_STATUS = "status";
-
+    public static final String KEY_DATE_TIME_REMAINDER = "date_time_remainder";
+    private static final String DATABASE_ALTER_DATE_TIME_REMAINDER = "ALTER TABLE "
+            + TABLE_NAME + " ADD COLUMN "
+            + KEY_DATE_TIME_REMAINDER + " DATETIME;";
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -39,18 +42,27 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     //create Table
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_TODO_LIST_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + KEY_ID + " INTEGER PRIMARY KEY," + KEY_TITLE + " TEXT," + KEY_NOTES + " TEXT," + KEY_STATUS + " INTEGER DEFAULT 0" + ")";
+        String CREATE_TODO_LIST_TABLE = "CREATE TABLE " + TABLE_NAME + " ("
+                + KEY_ID + " INTEGER PRIMARY KEY,"
+                + KEY_TITLE + " TEXT,"
+                + KEY_NOTES + " TEXT,"
+                + KEY_STATUS + " INTEGER DEFAULT 0,"
+                + KEY_DATE_TIME_REMAINDER
+                + " DATETIME" + ")";
         db.execSQL(CREATE_TODO_LIST_TABLE);
     }
 
-    //update databse
+    //update database
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        //Drop older table if exited
-        db.execSQL("DROP TABLE IF EXITS " + TABLE_NAME);
-
-        //create tables again
-        onCreate(db);
+//        //Drop older table if exited
+//        db.execSQL("DROP TABLE IF EXITS " + TABLE_NAME);
+//
+//        //create tables again
+//        onCreate(db);
+        if (oldVersion < 2) {
+            db.execSQL(DATABASE_ALTER_DATE_TIME_REMAINDER);
+        }
     }
 
     // All CRUD operation (create , read, update and delete)
@@ -63,6 +75,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_TITLE, todo.getTitle());
         values.put(KEY_NOTES, todo.getNotes());
         values.put(KEY_STATUS, todo.isChecked());
+        values.put(KEY_DATE_TIME_REMAINDER, todo.getDateTimeRemainder());
 
         Log.d("Data Insertion ::--", values.toString());
         //Insert new row
@@ -80,7 +93,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                         KEY_ID,
                         KEY_TITLE,
                         KEY_NOTES,
-                        KEY_STATUS},
+                        KEY_STATUS,
+                        KEY_DATE_TIME_REMAINDER},
                 KEY_ID + " = ?",
                 new String[]{String.valueOf(id)},
                 null,
@@ -97,14 +111,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             status = true;
         }
 
-        Todo todo = new Todo(Integer.parseInt(cursor.getString(0)), cursor.getString(1), cursor.getString(2), status);
+        Todo todo = new Todo(Integer.parseInt(cursor.getString(0)), cursor.getString(1), cursor.getString(2), status, cursor.getString(4));
 
         //return todo
         return todo;
     }
 
     //Get all task -item list from db
-    public List<Todo> getAllTodolist() {
+    public List<Todo> getAllTodoList() {
         List<Todo> todoList = new ArrayList<>();
         //select All Query
         String selectQuery = "SELECT * FROM " + TABLE_NAME + " ORDER BY ID  DESC ";
@@ -119,18 +133,23 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 todo.setId(Integer.parseInt(cursor.getString(0)));
                 todo.setTitle(cursor.getString(1));
                 todo.setNotes(cursor.getString(2));
-                int i = Integer.parseInt(cursor.getString(3));
-                boolean status;
-                if (i == 0)
-                    status = false;
-                else
-                    status = true;
-                todo.setChecked(status);
+                todo.setChecked(isStatus(Integer.parseInt(cursor.getString(3))));
+                todo.setDateTimeRemainder(cursor.getString(4));
                 todoList.add(todo);
             } while (cursor.moveToNext());
         }
         // return all task item list
         return todoList;
+    }
+
+    private boolean isStatus(int i) {
+//        boolean status;
+//        if (i == 0)
+//            status = false;
+//        else
+//            status = true;
+//        return status;
+        return i != 0;
     }
 
     //Get all task- item list count
@@ -144,6 +163,41 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return count;
     }
 
+    public int getTodoListCompletedCount() {
+        String completedTaskQuery = "SELECT * FROM " + TABLE_NAME + " WHERE " + KEY_STATUS + " == 1;";
+        SQLiteDatabase database = this.getReadableDatabase();
+        Cursor cursor = database.rawQuery(completedTaskQuery, null);
+        int completedAllTasksCount = cursor.getCount();
+        cursor.close();
+
+        return completedAllTasksCount;
+    }
+
+    public List<Todo> getAllCompletedTasks() {
+        List<Todo> allCompletedTasks = new ArrayList<>();
+
+        //select all marked as completed task
+        String completedQuery = "SELECT * FROM " + TABLE_NAME + " WHERE " + KEY_STATUS + " == 1;";
+
+        SQLiteDatabase database = this.getWritableDatabase();
+        Cursor cursor = database.rawQuery(completedQuery, null);
+
+        //loop through all the row which are completed
+        if (cursor.moveToFirst()) {
+            do {
+                Todo todo = new Todo();
+                todo.setId(Integer.parseInt(cursor.getString(0)));
+                todo.setTitle(cursor.getString(1));
+                todo.setNotes(cursor.getString(2));
+                todo.setChecked(isStatus(Integer.parseInt(cursor.getString(3))));
+                todo.setDateTimeRemainder(cursor.getString(4));
+                allCompletedTasks.add(todo);
+            } while (cursor.moveToNext());
+        }
+        //return all the completed tasks
+        return allCompletedTasks;
+    }
+
 
     //update single task item
     public int updateTodoList(Todo todo) {
@@ -153,6 +207,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_TITLE, todo.getTitle());
         values.put(KEY_NOTES, todo.getNotes());
         values.put(KEY_STATUS, todo.isChecked());
+        values.put(KEY_DATE_TIME_REMAINDER, todo.getDateTimeRemainder());
 
         //updating row
         return database.update(TABLE_NAME, values, KEY_ID + " = ?", new String[]{String.valueOf(todo.getId())});

@@ -37,6 +37,18 @@
         android:padding="16dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/detailed_date_display"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_margin="10dp"
+            android:background="@color/colorDivider"
+            android:padding="10dp"
+            android:textColor="@color/colorPrimaryText"
+            android:textStyle="italic"
+            android:visibility="gone"/>
+
         <!--<android.support.v7.widget.AppCompatCheckBox-->
         <!--android:id="@+id/detailedSelectableCheckbox"-->
         <!--android:layout_width="wrap_content"-->
@@ -49,14 +61,16 @@
             android:id="@+id/detailedTitleTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
+            android:layout_below="@id/detailed_date_display"
+            android:text=""
             android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"/>
 
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/detailedNoteTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/detailedTitleTv"/>
+            android:layout_below="@id/detailedTitleTv"
+            android:text=""/>
 
     </RelativeLayout>
 

@@ -21,18 +21,18 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
 
     private List<Todo> mTodoList;
     private ClickListener mClickListener;
-
+    private TodoViewHolder mTodoViewHolder;
 
     public TodoAdapter(List<Todo> todoList, ClickListener clickListener) {
         mTodoList = todoList;
         mClickListener = clickListener;
-
     }
 
     @Override
     public TodoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.todo_list_row, parent, false);
-        return new TodoViewHolder(view);
+        mTodoViewHolder = new TodoViewHolder(view);
+        return mTodoViewHolder;
     }
 
     @Override
@@ -45,6 +45,11 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
     @Override
     public int getItemCount() {
         return mTodoList.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return super.getItemViewType(position);
     }
 
     public class TodoViewHolder extends RecyclerView.ViewHolder {
@@ -68,13 +73,18 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
             mAppCompatCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    mClickListener.onCheckBoxSelected(buttonView, getAdapterPosition(), isChecked);
-                    if (isChecked) {
-                        mTitle.setPaintFlags(mTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                        mRelativeLayout.setBackgroundColor(ContextCompat.getColor(mTitle.getContext(), R.color.colorDivider));
-                    } else {
-                        mTitle.setPaintFlags(mTitle.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-                        mRelativeLayout.setBackgroundColor(ContextCompat.getColor(mTitle.getContext(), R.color.colorIcons));
+                    if (mClickListener != null) {
+                        if (buttonView.isChecked()) {
+                            buttonView.setChecked(true);
+                            mClickListener.onCheckBoxSelected(buttonView, getAdapterPosition(), isChecked);
+                            mTitle.setPaintFlags(mTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                            mRelativeLayout.setBackgroundColor(ContextCompat.getColor(mTitle.getContext(), R.color.colorDivider));
+                        } else {
+                            buttonView.setChecked(false);
+                            mClickListener.onCheckBoxSelected(buttonView, getAdapterPosition(), isChecked);
+                            mTitle.setPaintFlags(mTitle.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                            mRelativeLayout.setBackgroundColor(ContextCompat.getColor(mTitle.getContext(), R.color.colorIcons));
+                        }
                     }
                 }
             });
