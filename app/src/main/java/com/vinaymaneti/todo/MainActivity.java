@@ -22,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private TodoAdapter mTodoAdapter;
     private List<Todo> mTodoList = new ArrayList<>();
     private DatabaseHandler mDatabaseHandler;
-    private AppCompatImageView filterIv;
-    private CoordinatorLayout coordinatorLayout;
+    RecyclerView recyclerView;
+    AppCompatTextView emptyTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
+        CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
         if (!((TodoApplication) getApplicationContext()).toasted) {
             Snackbar snackbar = Snackbar
                     .make(coordinatorLayout, R.string.welcome_app_message, Snackbar.LENGTH_LONG);
@@ -60,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initFilterIv() {
-        filterIv = (AppCompatImageView) findViewById(R.id.filterIV);
+        AppCompatImageView filterIv = (AppCompatImageView) findViewById(R.id.filterIV);
         filterIv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -70,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showAlertToDeleteAllMarkedTask() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.MyDialogTheme);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.MyDialogTheme);
         builder.setTitle(R.string.delete_title_text);
         builder.setMessage(R.string.delete_message_text);
 
@@ -78,7 +79,11 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton(positiveText, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
+                mTodoAdapter.notifyDeleteItemToAdapter();
+                checkShowEmptyView(mTodoAdapter.getTodoList());
+                Snackbar snackbar = Snackbar
+                        .make(mToolbar, R.string.deleted_marked_task_message, Snackbar.LENGTH_LONG);
+                snackbar.show();
             }
         });
 
@@ -94,27 +99,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initRecyclerView() {
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        AppCompatTextView emptyTextView = (AppCompatTextView) findViewById(R.id.emptyTextView);
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        emptyTextView = (AppCompatTextView) findViewById(R.id.emptyTextView);
         mTodoList = mDatabaseHandler.getAllTodoList();
-        if (mTodoList.isEmpty()) {
-            recyclerView.setVisibility(View.GONE);
-            emptyTextView.setVisibility(View.VISIBLE);
-        } else {
-            recyclerView.setVisibility(View.VISIBLE);
-            emptyTextView.setVisibility(View.GONE);
-        }
+        checkShowEmptyView(mTodoList);
 
+        int total = mDatabaseHandler.getTodoListCount();
         mTodoAdapter = new TodoAdapter(mTodoList, new ClickListener() {
+
+            @Override
+            public void onClicked(View view, int position, List<Todo> todoList) {
+                // Check if an item was deleted, but the user clicked it before the UI removed it
+                if (position != RecyclerView.NO_POSITION) {
+                    int databaseId = todoList.get(position).getId();
+                    if (databaseId > 0) {
+                        Intent intent = new Intent(MainActivity.this, DetailedActivity.class);
+                        intent.putExtra(KEY_DATABASE_ID, databaseId);
+                        startActivity(intent);
+                    }
+                }
+            }
+
             @Override
             public void onClick(View view, int position) {
-                if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
-                    Todo todo = mTodoList.get(position);
-                    int id = todo.getId();
-                    Intent intent = new Intent(MainActivity.this, DetailedActivity.class);
-                    intent.putExtra(KEY_DATABASE_ID, id);
-                    startActivity(intent);
-                }
+                //No use of this method (only for entire click list item)
             }
 
             @Override
@@ -137,6 +145,16 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(mTodoAdapter);
         mTodoAdapter.notifyDataSetChanged();
 
+    }
+
+    private void checkShowEmptyView(List<Todo> todoList) {
+        if (todoList.isEmpty()) {
+            recyclerView.setVisibility(View.GONE);
+            emptyTextView.setVisibility(View.VISIBLE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            emptyTextView.setVisibility(View.GONE);
+        }
     }
 
 
@@ -171,8 +189,8 @@ public class MainActivity extends AppCompatActivity {
                         mDrawerLayout.closeDrawers();
                         break;
                     case R.id.statistics:
-                        Intent statisticsIntentn = new Intent(MainActivity.this, StatisticsActivity.class);
-                        startActivity(statisticsIntentn);
+                        Intent statisticsIntent = new Intent(MainActivity.this, StatisticsActivity.class);
+                        startActivity(statisticsIntent);
                         mDrawerLayout.closeDrawers();
                         break;
                 }
@@ -228,4 +246,6 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         moveTaskToBack(true);
     }
+
+
 }

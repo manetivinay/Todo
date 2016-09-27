@@ -86,6 +86,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     //getting single task-item from db
     public Todo getTodo(int id) {
+        Todo todo = null;
         SQLiteDatabase database = this.getReadableDatabase();
 
         Cursor cursor = database.query(TABLE_NAME,
@@ -102,17 +103,19 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 null,
                 null);
 
-        if (cursor != null)
-            cursor.moveToFirst();
-        boolean status;
-        if (cursor != null && cursor.getString(3) != null && Integer.parseInt(cursor.getString(3)) == 0) {
-            status = false;
-        } else {
-            status = true;
-        }
+        if (cursor != null && cursor.getCount() > 0)
+            if (cursor.moveToFirst()) {
 
-        Todo todo = new Todo(Integer.parseInt(cursor.getString(0)), cursor.getString(1), cursor.getString(2), status, cursor.getString(4));
+                boolean status;
+                if (cursor.getString(3) != null && Integer.parseInt(cursor.getString(3)) == 0) {
+                    status = false;
+                } else {
+                    status = true;
+                }
 
+                todo = new Todo(Integer.parseInt(cursor.getString(0)), cursor.getString(1), cursor.getString(2), status, cursor.getString(4));
+            }
+        database.close();
         //return todo
         return todo;
     }

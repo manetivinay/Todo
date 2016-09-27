@@ -1,6 +1,8 @@
 package com.vinaymaneti.todo;
 
+import android.content.Context;
 import android.graphics.Paint;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +13,8 @@ import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,18 +25,25 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
 
     private List<Todo> mTodoList;
     private ClickListener mClickListener;
-    private TodoViewHolder mTodoViewHolder;
+    private ArrayList<Integer> checkedValues = new ArrayList<>();
+    private Context context;
 
-    public TodoAdapter(List<Todo> todoList, ClickListener clickListener) {
+    TodoAdapter(List<Todo> todoList, ClickListener clickListener) {
         mTodoList = todoList;
         mClickListener = clickListener;
+        for (int i = 0; i < mTodoList.size(); i++) {
+            Todo todo = mTodoList.get(i);
+            if (todo.isChecked()) {
+                checkedValues.add(i);
+            }
+        }
     }
 
     @Override
     public TodoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.todo_list_row, parent, false);
-        mTodoViewHolder = new TodoViewHolder(view);
-        return mTodoViewHolder;
+        context = parent.getContext();
+        return new TodoViewHolder(view);
     }
 
     @Override
@@ -40,6 +51,14 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
         Todo todo = mTodoList.get(position);
         holder.mAppCompatCheckBox.setChecked(todo.isChecked());
         holder.mTitle.setText(todo.getTitle());
+    }
+
+    private ArrayList<Integer> getCheckedValues() {
+        return checkedValues;
+    }
+
+    private void setCheckedValues(ArrayList<Integer> checkedValues) {
+        this.checkedValues = checkedValues;
     }
 
     @Override
@@ -52,12 +71,48 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
         return super.getItemViewType(position);
     }
 
-    public class TodoViewHolder extends RecyclerView.ViewHolder {
-        public RelativeLayout mRelativeLayout;
-        public AppCompatCheckBox mAppCompatCheckBox;
-        public TextView mTitle;
+    void notifyDeleteItemToAdapter() {
+        DatabaseHandler databaseHandler;
+        for (int i = getCheckedValues().size(); i > 0; i--) {
+            databaseHandler = new DatabaseHandler(context);
+            if (getCheckedValues().get(0) >= 0) {
+                Todo needToDelete = mTodoList.get(getCheckedValues().get(0));
+                mTodoList.remove(getCheckedValues().get(0));
+                notifyItemRemoved(getCheckedValues().get(0));
+                checkedValues.remove(checkedValues.get(0));
+                if (needToDelete != null) {
+                    databaseHandler.deleteTodoList(needToDelete);
+                    notifyDataSetChanged();
+                    mTodoList = databaseHandler.getAllTodoList();
+                }
+                if (checkedValues.size() >= 1)
+                    decrementList(checkedValues);
+            }
+        }
+        checkedValues.clear();
+    }
 
-        public TodoViewHolder(View itemView) {
+    private ArrayList<Integer> decrementList(ArrayList<Integer> position) {
+        for (int i = 0; i < position.size(); i++) {
+            int decrement = position.get(i);
+            decrement--;
+            position.set(i, decrement);
+            setCheckedValues(position);
+        }
+
+        return position;
+    }
+
+    List<Todo> getTodoList() {
+        return mTodoList;
+    }
+
+    class TodoViewHolder extends RecyclerView.ViewHolder {
+        RelativeLayout mRelativeLayout;
+        AppCompatCheckBox mAppCompatCheckBox;
+        TextView mTitle;
+
+        TodoViewHolder(final View itemView) {
             super(itemView);
             mAppCompatCheckBox = (AppCompatCheckBox) itemView.findViewById(R.id.checkbox);
             mTitle = (TextView) itemView.findViewById(R.id.title_tv);
@@ -66,7 +121,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
             mRelativeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mClickListener.onClick(v, getAdapterPosition());
+                    mClickListener.onClicked(v, getAdapterPosition(), mTodoList);
                 }
             });
 
@@ -77,10 +132,18 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
                         if (buttonView.isChecked()) {
                             buttonView.setChecked(true);
                             mClickListener.onCheckBoxSelected(buttonView, getAdapterPosition(), isChecked);
+                            int i = getAdapterPosition();
+                            if (!checkedValues.contains(i))
+                                checkedValues.add(i);
+                            Collections.sort(checkedValues);
                             mTitle.setPaintFlags(mTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                             mRelativeLayout.setBackgroundColor(ContextCompat.getColor(mTitle.getContext(), R.color.colorDivider));
                         } else {
                             buttonView.setChecked(false);
+                            int unCheckValuePosition;
+                            unCheckValuePosition = checkedValues.indexOf(getAdapterPosition());
+                            if (unCheckValuePosition > 0)
+                                checkedValues.remove(unCheckValuePosition);
                             mClickListener.onCheckBoxSelected(buttonView, getAdapterPosition(), isChecked);
                             mTitle.setPaintFlags(mTitle.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
                             mRelativeLayout.setBackgroundColor(ContextCompat.getColor(mTitle.getContext(), R.color.colorIcons));
@@ -90,4 +153,5 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
             });
         }
     }
+
 }
