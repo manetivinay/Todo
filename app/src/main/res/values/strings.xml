@@ -20,6 +20,7 @@
     <string name="notes_empty">Your task notes is empty</string>
     <string name="ok">ok</string>
     <string name="cancel">cancel</string>
+    <string name="delete_all_marked_title_text">Would you like to delete all marked tasks?</string>
     <string name="delete_title_text">Would you like to delete this task?</string>
     <string name="delete_message_text">This will delete permanently. Your no more accessible for
         this item
@@ -49,4 +50,6 @@
     <string name="title_hint">Please enter your title</string>
     <string name="description_hint">Please enter your description</string>
     <string name="deleted_marked_task_message">Deleted marked Task successfully</string>
+    <string name="tool_bar_edit_title">Edit TO-DO</string>
+    <string name="tool_bar_create_title">Create new TO-DO</string>
 </resources>

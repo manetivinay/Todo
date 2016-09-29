@@ -1,0 +1,21 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="com.vinaymaneti.todo.DetailedActivity">
+
+    <group android:id="@+id/group"
+           android:checkableBehavior="single">
+        <item
+            android:id="@+id/highChoice"
+            android:title="High"
+            app:showAsAction="collapseActionView"/>
+        <item
+            android:id="@+id/mediumChoice"
+            android:title="Medium"
+            app:showAsAction="collapseActionView"/>
+        <item
+            android:id="@+id/lowChoice"
+            android:title="Low"
+            app:showAsAction="collapseActionView"/>
+    </group>
+</menu>

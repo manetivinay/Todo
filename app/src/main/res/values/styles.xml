@@ -24,4 +24,8 @@
         <item name="android:windowBackground">@drawable/background_dialog</item>
     </style>
 
+    <style name="SplashScreenTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@drawable/background_splash</item>
+    </style>
+
 </resources>

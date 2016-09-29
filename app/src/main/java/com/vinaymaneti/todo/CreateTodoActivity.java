@@ -14,7 +14,9 @@ import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.widget.Toast;
 
@@ -36,6 +38,8 @@ public class CreateTodoActivity extends AppCompatActivity
     private FloatingActionButton fab;
     int databaseId;
     String mDate, mHours, mMinutes, formatTime;
+    PriorityStatusCode priorityStatusCode = null;
+    int priorityCode = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +51,10 @@ public class CreateTodoActivity extends AppCompatActivity
         onClickRemainderButton();
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
+            getSupportActionBar().setTitle(R.string.tool_bar_edit_title);
             existingDataEditFunctionality(fab, extras);
         } else {
+            getSupportActionBar().setTitle(R.string.tool_bar_create_title);
             createNewFunctionality(fab);
         }
     }
@@ -94,7 +100,8 @@ public class CreateTodoActivity extends AppCompatActivity
                 todoList.setNotes(descriptionTv.getText().toString());
                 todoList.setChecked(false);
                 todoList.setDateTimeRemainder(getDateTime(mDate, formatTime));
-                mDatabaseHandler.addTodo(new Todo(todoList.isChecked(), todoList.getTitle(), todoList.getNotes(), todoList.getDateTimeRemainder()));
+                todoList.setPriorityStatus(getPriorityCode());
+                mDatabaseHandler.addTodo(new Todo(todoList.isChecked(), todoList.getTitle(), todoList.getNotes(), todoList.getDateTimeRemainder(), todoList.getPriorityStatus()));
                 Intent createIntent = new Intent(CreateTodoActivity.this, MainActivity.class);
                 startActivity(createIntent);
             }
@@ -133,7 +140,8 @@ public class CreateTodoActivity extends AppCompatActivity
                 todoUpdateValues.setNotes(descriptionTv.getText().toString());
                 todoUpdateValues.setChecked(finalStatus);
                 todoUpdateValues.setDateTimeRemainder(getDateTime(mDate, formatTime));
-                mDatabaseHandler.updateTodoList(new Todo(databaseId, todoUpdateValues.getTitle(), todoUpdateValues.getNotes(), todoUpdateValues.isChecked(), todoUpdateValues.getDateTimeRemainder()));
+                todoUpdateValues.setPriorityStatus(getPriorityCode());
+                mDatabaseHandler.updateTodoList(new Todo(databaseId, todoUpdateValues.getTitle(), todoUpdateValues.getNotes(), todoUpdateValues.isChecked(), todoUpdateValues.getDateTimeRemainder(), todoUpdateValues.getPriorityStatus()));
                 Intent createIntent = new Intent(CreateTodoActivity.this, MainActivity.class);
                 startActivity(createIntent);
                 finish();
@@ -303,9 +311,68 @@ public class CreateTodoActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home)
-            finish();
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            case R.id.highChoice:
+                if (item.isChecked())
+                    item.setChecked(false);
+                else
+                    item.setChecked(true);
+                priorityStatusCode = PriorityStatusCode.HIGH;
+                break;
+            case R.id.mediumChoice:
+                if (item.isChecked())
+                    item.setChecked(false);
+                else
+                    item.setChecked(true);
+                priorityStatusCode = PriorityStatusCode.MEDIUM;
+                break;
+            case R.id.lowChoice:
+                if (item.isChecked())
+                    item.setChecked(false);
+                else
+                    item.setChecked(true);
+                priorityStatusCode = PriorityStatusCode.LOW;
+                break;
+        }
+
+        priorityCode = priorityStatusCode.getCode();
+        Toast.makeText(getApplicationContext(), " " + priorityStatusCode, Toast.LENGTH_SHORT).show();
+
         return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (databaseId > 0) {
+            Todo databaseHandlerTodo = mDatabaseHandler.getTodo(databaseId);
+            if (databaseId >= 0 && databaseHandlerTodo != null) {
+                String priorityStatusString = Util.getPriorityString(databaseHandlerTodo.getPriorityStatus());
+                MenuItem highMenuItem = menu.findItem(R.id.highChoice);
+                MenuItem mediumMenuItem = menu.findItem(R.id.mediumChoice);
+                MenuItem lowMenuItem = menu.findItem(R.id.lowChoice);
+                if (priorityStatusString.equals(PriorityStatusCode.HIGH.getPriorityStatus())) {
+                    highMenuItem.setChecked(true);
+                } else if (priorityStatusString.equals(PriorityStatusCode.MEDIUM.getPriorityStatus())) {
+                    mediumMenuItem.setChecked(true);
+                } else {
+                    lowMenuItem.setChecked(true);
+                }
+            }
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    public int getPriorityCode() {
+        return priorityCode;
+    }
+
+    public void setPriorityCode(int priorityCode) {
+        this.priorityCode = priorityCode;
     }
 
     @Override
@@ -334,6 +401,14 @@ public class CreateTodoActivity extends AppCompatActivity
         } else {
             return date + " " + hours;
         }
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_create_main, menu);
+        return true;
     }
 
 }

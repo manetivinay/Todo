@@ -22,7 +22,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showAlertToDeleteAllMarkedTask() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.MyDialogTheme);
-        builder.setTitle(R.string.delete_title_text);
+        builder.setTitle(R.string.delete_all_marked_title_text);
         builder.setMessage(R.string.delete_message_text);
 
         String positiveText = getString(R.string.ok);

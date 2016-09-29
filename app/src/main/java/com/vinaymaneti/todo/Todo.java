@@ -11,16 +11,19 @@ class Todo implements Parcelable {
     private String title, notes, dateTimeRemainder;
     private boolean isChecked;
     private int id;
+    private int priorityStatus;
 
     Todo() {
 
     }
 
-    Todo(boolean isChecked, String title, String notes, String dateTimeRemainder) {
+    Todo(boolean isChecked, String title, String notes, String dateTimeRemainder, int priorityStatus) {
         this.isChecked = isChecked;
         this.title = title;
         this.notes = notes;
         this.dateTimeRemainder = dateTimeRemainder;
+        this.priorityStatus = priorityStatus;
+
     }
 
     private Todo(Parcel in) {
@@ -29,7 +32,7 @@ class Todo implements Parcelable {
         notes = in.readString();
         isChecked = in.readByte() != 0; //isChecked = (in.readInt() == 0) ? false : true;
         dateTimeRemainder = in.readString();
-
+        priorityStatus = in.readInt();
     }
 
     public static final Creator<Todo> CREATOR = new Creator<Todo>() {
@@ -44,12 +47,13 @@ class Todo implements Parcelable {
         }
     };
 
-    Todo(int id, String stringTitle, String stringNotes, boolean checkboxStatus, String dateTimeRemainder) {
+    Todo(int id, String stringTitle, String stringNotes, boolean checkboxStatus, String dateTimeRemainder, int priorityStatus) {
         this.id = id;
         this.title = stringTitle;
         this.notes = stringNotes;
         this.isChecked = checkboxStatus;
         this.dateTimeRemainder = dateTimeRemainder;
+        this.priorityStatus = priorityStatus;
     }
 
     public String getTitle() {
@@ -92,6 +96,14 @@ class Todo implements Parcelable {
         this.dateTimeRemainder = dateTimeRemainder;
     }
 
+    public int getPriorityStatus() {
+        return priorityStatus;
+    }
+
+    public void setPriorityStatus(int priorityStatus) {
+        this.priorityStatus = priorityStatus;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -104,5 +116,6 @@ class Todo implements Parcelable {
         dest.writeString(notes);
         dest.writeInt(isChecked ? 1 : 0);
         dest.writeString(dateTimeRemainder);
+        dest.writeInt(priorityStatus);
     }
 }

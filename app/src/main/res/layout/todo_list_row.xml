@@ -16,17 +16,45 @@
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"/>
 
+    <!--<android.support.v7.widget.AppCompatTextView-->
+    <!--android:id="@+id/priorityTv"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_alignParentRight="true"-->
+    <!--android:background="@color/colorPrimary"-->
+    <!--android:textColor="@color/colorIcons"-->
+    <!--android:textSize="12dp"-->
+    <!--android:padding="2dp"-->
+    <!--android:visibility="gone"-->
+    <!--android:text="Priority"/>-->
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/priorityLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/rounded_corner"
+        android:padding="5dp"
+        android:textColor="@color/colorAccent"
+        android:textSize="15dp"
+        android:textStyle="italic"
+        android:visibility="gone"/>
+
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/title_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginLeft="10dp"
+        android:layout_marginRight="12dp"
+        android:layout_toLeftOf="@id/priorityLabel"
         android:layout_toRightOf="@id/checkbox"
-        android:maxLines="1"
         android:ellipsize="end"
+        android:maxLines="1"
         android:text="Hello world djfhsgjfhg sbdfjdhsjfhsdgj nbsjdfjsdhgj"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
         android:textColor="@color/colorPrimaryText"/>
+
 
 </RelativeLayout>

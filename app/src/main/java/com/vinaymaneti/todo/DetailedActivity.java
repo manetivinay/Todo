@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 public class DetailedActivity extends AppCompatActivity {
 
@@ -24,6 +25,9 @@ public class DetailedActivity extends AppCompatActivity {
     private DatabaseHandler mDatabaseHandler;
     private AppCompatImageView mDeleteTodo;
     private AppCompatTextView mDetailedDateTimeView;
+    private AppCompatTextView mPriorityTextView;
+    private AppCompatTextView mRemainderTextView;
+    private AppCompatTextView mPriorityStatusValue;
 
     int database_id;
     Todo mDatabaseHandlerTodo;
@@ -49,11 +53,18 @@ public class DetailedActivity extends AppCompatActivity {
             mDetailedTitleTextView.setText(mDatabaseHandlerTodo.getTitle());
             mDetailedNoteTextView.setText(mDatabaseHandlerTodo.getNotes());
             if (mDatabaseHandlerTodo.getDateTimeRemainder() != null) {
+                mRemainderTextView.setVisibility(View.VISIBLE);
                 mDetailedDateTimeView.setVisibility(View.VISIBLE);
                 mDetailedDateTimeView.setCompoundDrawablesWithIntrinsicBounds(
                         R.drawable.icon_clock, 0, 0, 0);
                 String dateTimeValue = "   " + mDatabaseHandlerTodo.getDateTimeRemainder();
                 mDetailedDateTimeView.setText(dateTimeValue);
+            }
+
+            if (mDatabaseHandlerTodo.getPriorityStatus() > 0 && mDatabaseHandlerTodo.getPriorityStatus() < 4) {
+                mPriorityTextView.setVisibility(View.VISIBLE);
+                mPriorityStatusValue.setVisibility(View.VISIBLE);
+                mPriorityStatusValue.setText(Util.getPriorityString(mDatabaseHandlerTodo.getPriorityStatus()));
             }
         }
     }
@@ -66,6 +77,7 @@ public class DetailedActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void showDeletingTodoTask() {
         AlertDialog.Builder builder = new AlertDialog.Builder(DetailedActivity.this, R.style.MyDialogTheme);
@@ -133,6 +145,9 @@ public class DetailedActivity extends AppCompatActivity {
         mDetailEditButton = (FloatingActionButton) findViewById(R.id.editFab);
         mDeleteTodo = (AppCompatImageView) findViewById(R.id.deleteTodo);
         mDetailedDateTimeView = (AppCompatTextView) findViewById(R.id.detailed_date_display);
+        mPriorityTextView = (AppCompatTextView) findViewById(R.id.priorityTextView);
+        mRemainderTextView = (AppCompatTextView) findViewById(R.id.remainderTextView);
+        mPriorityStatusValue = (AppCompatTextView) findViewById(R.id.priorityStatus);
     }
 
     @Override
