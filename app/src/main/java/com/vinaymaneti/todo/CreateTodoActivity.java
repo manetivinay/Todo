@@ -340,7 +340,6 @@ public class CreateTodoActivity extends AppCompatActivity
         }
 
         priorityCode = priorityStatusCode.getCode();
-        Toast.makeText(getApplicationContext(), " " + priorityStatusCode, Toast.LENGTH_SHORT).show();
 
         return super.onOptionsItemSelected(item);
     }
