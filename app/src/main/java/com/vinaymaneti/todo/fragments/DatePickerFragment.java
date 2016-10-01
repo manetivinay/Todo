@@ -1,4 +1,4 @@
-package com.vinaymaneti.todo;
+package com.vinaymaneti.todo.fragments;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -8,9 +8,7 @@ import android.icu.util.Calendar;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
-import android.support.v7.widget.AppCompatTextView;
 import android.widget.DatePicker;
-import android.widget.TextView;
 
 /**
  * Created by vinaymaneti on 9/23/16.

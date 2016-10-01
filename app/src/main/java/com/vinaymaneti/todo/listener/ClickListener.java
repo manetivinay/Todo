@@ -1,6 +1,8 @@
-package com.vinaymaneti.todo;
+package com.vinaymaneti.todo.listener;
 
 import android.view.View;
+
+import com.vinaymaneti.todo.model.Todo;
 
 import java.util.List;
 

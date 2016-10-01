@@ -1,4 +1,4 @@
-package com.vinaymaneti.todo;
+package com.vinaymaneti.todo.misc;
 
 import android.content.Context;
 import android.content.res.TypedArray;

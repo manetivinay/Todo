@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.vinaymaneti.todo.DetailedActivity">
+    tools:context="com.vinaymaneti.todo.activities.DetailedActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -36,80 +36,88 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <View
-            android:id="@+id/centerShim"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_alignBottom="@+id/priorityStatus"
-            android:layout_centerHorizontal="true"
-            android:visibility="visible"/>
+        <RelativeLayout android:id="@+id/subRelativeLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true">
 
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/priorityTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignRight="@id/centerShim"
-            android:layout_margin="3dp"
-            android:padding="5dp"
-            android:text="Priority"
-            android:textAlignment="center"
-            android:textColor="@color/colorPrimaryText"
-            android:textSize="15dp"
-            android:textStyle="normal"
-            android:visibility="gone"/>
+            <View
+                android:id="@+id/centerShim"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_centerHorizontal="true"
+                android:background="@color/colorDivider"
+                android:visibility="gone"/>
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/priorityTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignRight="@id/centerShim"
+                android:layout_margin="3dp"
+                android:padding="5dp"
+                android:text="Priority"
+                android:textAlignment="center"
+                android:textColor="@color/colorPrimaryText"
+                android:textSize="15dp"
+                android:textStyle="normal"
+                android:visibility="gone"/>
 
 
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/remainderTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@id/centerShim"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_margin="3dp"
-            android:padding="5dp"
-            android:text="Remainder Time"
-            android:textAlignment="center"
-            android:textColor="@color/colorPrimaryText"
-            android:textSize="15dp"
-            android:textStyle="normal"
-            android:visibility="gone"/>
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/remainderTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@id/centerShim"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_margin="3dp"
+                android:padding="5dp"
+                android:text="Remainder Time"
+                android:textAlignment="center"
+                android:textColor="@color/colorPrimaryText"
+                android:textSize="15dp"
+                android:textStyle="normal"
+                android:visibility="gone"/>
 
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/priorityStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignRight="@id/centerShim"
-            android:layout_below="@id/priorityTextView"
-            android:layout_margin="10dp"
-            android:background="@drawable/rounded_corner"
-            android:padding="5dp"
-            android:text="Medium"
-            android:textAlignment="center"
-            android:textColor="@color/colorAccent"
-            android:textSize="15dp"
-            android:textStyle="italic"
-            android:visibility="gone"/>
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/priorityStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignRight="@id/centerShim"
+                android:layout_below="@id/priorityTextView"
+                android:layout_margin="10dp"
+                android:background="@drawable/rounded_corner"
+                android:padding="5dp"
+                android:text="Medium"
+                android:textAlignment="center"
+                android:textColor="@color/colorAccent"
+                android:textSize="15dp"
+                android:textStyle="italic"
+                android:visibility="gone"/>
 
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/detailed_date_display"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@id/centerShim"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/remainderTextView"
-            android:layout_margin="10dp"
-            android:background="@color/colorDivider"
-            android:padding="5dp"
-            android:text=""
-            android:textAlignment="center"
-            android:textColor="@color/colorPrimaryText"
-            android:textSize="15dp"
-            android:textStyle="italic"
-            android:visibility="gone"/>
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/detailed_date_display"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@id/centerShim"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/remainderTextView"
+                android:layout_margin="10dp"
+                android:background="@color/colorDivider"
+                android:padding="5dp"
+                android:text=""
+                android:textAlignment="center"
+                android:textColor="@color/colorPrimaryText"
+                android:textSize="15dp"
+                android:textStyle="italic"
+                android:visibility="gone"/>
+
+
+        </RelativeLayout>
 
         <!--<android.support.v7.widget.AppCompatCheckBox-->
         <!--android:id="@+id/detailedSelectableCheckbox"-->
@@ -118,27 +126,36 @@
         <!--android:layout_alignBottom="@+id/detailedNoteTv"-->
         <!--android:layout_alignTop="@+id/detailedTitleTv"-->
         <!--android:layout_marginRight="10dp"/>-->
+        <RelativeLayout android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/subRelativeLayout">
 
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/detailedTitleTv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/detailed_date_display"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingTop="16dp"
-            android:text=""
-            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"/>
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/detailedTitleTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="16dp"
 
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/detailedNoteTv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/detailedTitleTv"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingTop="10dp"
-            android:text=""/>
+                android:text="dfjdbmfsdgfdgdfgdfgfddf"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"/>
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/detailedNoteTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/detailedTitleTv"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="10dp"
+                android:text="sdfnjdshfjkhsdkhfksdhkfs
+                jdfjhbjhsfbjhsvbfhjvdhj sdfjbjhgfjsgjhfgsjgfj
+                sjdfbjsgfjsgjhgfjhsgjfgjshgfjhgsjhfgjsdgfjhsgj
+                hfgsdjhgfjhdsgfjhdsjhvbsjdhvbhjvbhj"/>
+
+        </RelativeLayout>
+
 
     </RelativeLayout>
 

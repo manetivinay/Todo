@@ -1,4 +1,4 @@
-package com.vinaymaneti.todo;
+package com.vinaymaneti.todo.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -7,17 +7,17 @@ import android.os.Parcelable;
  * Created by vinaymaneti on 9/21/16.
  */
 
-class Todo implements Parcelable {
+public class Todo implements Parcelable {
     private String title, notes, dateTimeRemainder;
     private boolean isChecked;
     private int id;
     private int priorityStatus;
 
-    Todo() {
+    public Todo() {
 
     }
 
-    Todo(boolean isChecked, String title, String notes, String dateTimeRemainder, int priorityStatus) {
+    public Todo(boolean isChecked, String title, String notes, String dateTimeRemainder, int priorityStatus) {
         this.isChecked = isChecked;
         this.title = title;
         this.notes = notes;
@@ -47,7 +47,7 @@ class Todo implements Parcelable {
         }
     };
 
-    Todo(int id, String stringTitle, String stringNotes, boolean checkboxStatus, String dateTimeRemainder, int priorityStatus) {
+    public Todo(int id, String stringTitle, String stringNotes, boolean checkboxStatus, String dateTimeRemainder, int priorityStatus) {
         this.id = id;
         this.title = stringTitle;
         this.notes = stringNotes;
@@ -64,19 +64,19 @@ class Todo implements Parcelable {
         this.title = title;
     }
 
-    String getNotes() {
+    public String getNotes() {
         return notes;
     }
 
-    void setNotes(String notes) {
+    public void setNotes(String notes) {
         this.notes = notes;
     }
 
-    boolean isChecked() {
+    public boolean isChecked() {
         return isChecked;
     }
 
-    void setChecked(boolean checked) {
+    public void setChecked(boolean checked) {
         isChecked = checked;
     }
 
@@ -88,11 +88,11 @@ class Todo implements Parcelable {
         this.id = id;
     }
 
-    String getDateTimeRemainder() {
+    public String getDateTimeRemainder() {
         return dateTimeRemainder;
     }
 
-    void setDateTimeRemainder(String dateTimeRemainder) {
+    public void setDateTimeRemainder(String dateTimeRemainder) {
         this.dateTimeRemainder = dateTimeRemainder;
     }
 

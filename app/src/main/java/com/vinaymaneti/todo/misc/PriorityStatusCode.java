@@ -1,4 +1,4 @@
-package com.vinaymaneti.todo;
+package com.vinaymaneti.todo.misc;
 
 /**
  * Created by vinaymaneti on 9/28/16.

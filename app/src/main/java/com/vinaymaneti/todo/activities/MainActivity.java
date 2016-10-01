@@ -1,4 +1,4 @@
-package com.vinaymaneti.todo;
+package com.vinaymaneti.todo.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -23,10 +23,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.vinaymaneti.todo.listener.ClickListener;
+import com.vinaymaneti.todo.db.DatabaseHandler;
+import com.vinaymaneti.todo.misc.DivideritemDecoration;
+import com.vinaymaneti.todo.R;
+import com.vinaymaneti.todo.model.Todo;
+import com.vinaymaneti.todo.adapter.TodoAdapter;
+import com.vinaymaneti.todo.app.TodoApplication;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ClickListener {
     public static final String KEY_DATABASE_ID = "database_id";
     private DrawerLayout mDrawerLayout;
     private Toolbar mToolbar;
@@ -103,40 +111,7 @@ public class MainActivity extends AppCompatActivity {
         mTodoList = mDatabaseHandler.getAllTodoList();
         checkShowEmptyView(mTodoList);
 
-        int total = mDatabaseHandler.getTodoListCount();
-        mTodoAdapter = new TodoAdapter(mTodoList, new ClickListener() {
-
-            @Override
-            public void onClicked(View view, int position, List<Todo> todoList) {
-                // Check if an item was deleted, but the user clicked it before the UI removed it
-                if (position != RecyclerView.NO_POSITION) {
-                    int databaseId = todoList.get(position).getId();
-                    if (databaseId > 0) {
-                        Intent intent = new Intent(MainActivity.this, DetailedActivity.class);
-                        intent.putExtra(KEY_DATABASE_ID, databaseId);
-                        startActivity(intent);
-                    }
-                }
-            }
-
-            @Override
-            public void onClick(View view, int position) {
-                //No use of this method (only for entire click list item)
-            }
-
-            @Override
-            public void onCheckBoxSelected(View view, int position, boolean isChecked) {
-                Todo todo = mTodoList.get(position);
-                int id = todo.getId();
-                todo.setChecked(isChecked);
-                mDatabaseHandler.updateCheckboxStatus(todo);
-            }
-
-            @Override
-            public void onLongClick(View view, int position) {
-
-            }
-        });
+        mTodoAdapter = new TodoAdapter(mTodoList, this);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -247,4 +222,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onClicked(View view, int position, List<Todo> todoList) {
+        //Check if an item was deleted, but the user clicked it before the UI removed it
+        if (position != RecyclerView.NO_POSITION) {
+            int databaseId = todoList.get(position).getId();
+            if (databaseId > 0) {
+                Intent intent = new Intent(MainActivity.this, DetailedActivity.class);
+                intent.putExtra(KEY_DATABASE_ID, databaseId);
+                startActivity(intent);
+            }
+        }
+    }
+
+    @Override
+    public void onClick(View view, int position) {
+
+    }
+
+    @Override
+    public void onCheckBoxSelected(View view, int position, boolean isChecked) {
+        Todo todo = mTodoList.get(position);
+        int id = todo.getId();
+        todo.setChecked(isChecked);
+        mDatabaseHandler.updateCheckboxStatus(todo);
+    }
+
+    @Override
+    public void onLongClick(View view, int position) {
+
+    }
 }

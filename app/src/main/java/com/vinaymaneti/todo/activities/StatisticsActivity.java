@@ -1,10 +1,13 @@
-package com.vinaymaneti.todo;
+package com.vinaymaneti.todo.activities;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+
+import com.vinaymaneti.todo.db.DatabaseHandler;
+import com.vinaymaneti.todo.R;
 
 public class StatisticsActivity extends AppCompatActivity {
 

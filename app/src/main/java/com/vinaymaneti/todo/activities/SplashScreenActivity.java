@@ -1,9 +1,11 @@
-package com.vinaymaneti.todo;
+package com.vinaymaneti.todo.activities;
 
 import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import com.vinaymaneti.todo.R;
 
 public class SplashScreenActivity extends AppCompatActivity {
 

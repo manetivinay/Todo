@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
-      tools:context="com.vinaymaneti.todo.DetailedActivity">
+      tools:context="com.vinaymaneti.todo.activities.DetailedActivity">
 
     <group android:id="@+id/group"
            android:checkableBehavior="single">

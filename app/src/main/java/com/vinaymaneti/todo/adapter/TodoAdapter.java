@@ -1,4 +1,4 @@
-package com.vinaymaneti.todo;
+package com.vinaymaneti.todo.adapter;
 
 import android.content.Context;
 import android.graphics.Paint;
@@ -12,6 +12,12 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.vinaymaneti.todo.db.DatabaseHandler;
+import com.vinaymaneti.todo.R;
+import com.vinaymaneti.todo.misc.Util;
+import com.vinaymaneti.todo.listener.ClickListener;
+import com.vinaymaneti.todo.model.Todo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +34,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
     private ArrayList<Integer> checkedValues = new ArrayList<>();
     private Context context;
 
-    TodoAdapter(List<Todo> todoList, ClickListener clickListener) {
+    public TodoAdapter(List<Todo> todoList, ClickListener clickListener) {
         mTodoList = todoList;
         mClickListener = clickListener;
         for (int i = 0; i < mTodoList.size(); i++) {
@@ -77,7 +83,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
         return super.getItemViewType(position);
     }
 
-    void notifyDeleteItemToAdapter() {
+    public void notifyDeleteItemToAdapter() {
         DatabaseHandler databaseHandler;
         for (int i = getCheckedValues().size(); i > 0; i--) {
             databaseHandler = new DatabaseHandler(context);
@@ -109,7 +115,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
         return position;
     }
 
-    List<Todo> getTodoList() {
+    public List<Todo> getTodoList() {
         return mTodoList;
     }
 
@@ -134,6 +140,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
                 }
             });
 
+            //checkbox
             mAppCompatCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

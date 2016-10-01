@@ -1,4 +1,4 @@
-package com.vinaymaneti.todo;
+package com.vinaymaneti.todo.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,7 +12,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
+
+import com.vinaymaneti.todo.db.DatabaseHandler;
+import com.vinaymaneti.todo.R;
+import com.vinaymaneti.todo.model.Todo;
+import com.vinaymaneti.todo.misc.Util;
 
 public class DetailedActivity extends AppCompatActivity {
 
@@ -28,6 +32,7 @@ public class DetailedActivity extends AppCompatActivity {
     private AppCompatTextView mPriorityTextView;
     private AppCompatTextView mRemainderTextView;
     private AppCompatTextView mPriorityStatusValue;
+    private View centreVerticalLine;
 
     int database_id;
     Todo mDatabaseHandlerTodo;
@@ -53,6 +58,7 @@ public class DetailedActivity extends AppCompatActivity {
             mDetailedTitleTextView.setText(mDatabaseHandlerTodo.getTitle());
             mDetailedNoteTextView.setText(mDatabaseHandlerTodo.getNotes());
             if (mDatabaseHandlerTodo.getDateTimeRemainder() != null) {
+                centreVerticalLine.setVisibility(View.VISIBLE);
                 mRemainderTextView.setVisibility(View.VISIBLE);
                 mDetailedDateTimeView.setVisibility(View.VISIBLE);
                 mDetailedDateTimeView.setCompoundDrawablesWithIntrinsicBounds(
@@ -62,9 +68,10 @@ public class DetailedActivity extends AppCompatActivity {
             }
 
             if (mDatabaseHandlerTodo.getPriorityStatus() > 0 && mDatabaseHandlerTodo.getPriorityStatus() < 4) {
+                centreVerticalLine.setVisibility(View.VISIBLE);
                 mPriorityTextView.setVisibility(View.VISIBLE);
                 mPriorityStatusValue.setVisibility(View.VISIBLE);
-                mPriorityStatusValue.setText(Util.getPriorityString(mDatabaseHandlerTodo.getPriorityStatus()));
+                mPriorityStatusValue.setText(Util.getPriorityString(mDatabaseHandlerTodo.getPriorityStatus()).toUpperCase());
             }
         }
     }
@@ -148,6 +155,7 @@ public class DetailedActivity extends AppCompatActivity {
         mPriorityTextView = (AppCompatTextView) findViewById(R.id.priorityTextView);
         mRemainderTextView = (AppCompatTextView) findViewById(R.id.remainderTextView);
         mPriorityStatusValue = (AppCompatTextView) findViewById(R.id.priorityStatus);
+        centreVerticalLine = findViewById(R.id.centerShim);
     }
 
     @Override

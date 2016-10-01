@@ -1,4 +1,4 @@
-package com.vinaymaneti.todo;
+package com.vinaymaneti.todo.listener;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;

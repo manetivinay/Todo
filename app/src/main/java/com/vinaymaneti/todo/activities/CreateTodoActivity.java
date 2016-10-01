@@ -1,4 +1,4 @@
-package com.vinaymaneti.todo;
+package com.vinaymaneti.todo.activities;
 
 import android.app.DialogFragment;
 import android.content.DialogInterface;
@@ -16,9 +16,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
 import android.widget.Toast;
+
+import com.vinaymaneti.todo.db.DatabaseHandler;
+import com.vinaymaneti.todo.fragments.DatePickerFragment;
+import com.vinaymaneti.todo.misc.PriorityStatusCode;
+import com.vinaymaneti.todo.R;
+import com.vinaymaneti.todo.fragments.TimePickerFragment;
+import com.vinaymaneti.todo.model.Todo;
+import com.vinaymaneti.todo.misc.Util;
 
 import java.util.Locale;
 
@@ -111,7 +118,7 @@ public class CreateTodoActivity extends AppCompatActivity
     private void existingDataEditFunctionality(final FloatingActionButton fab, Bundle extras) {
         boolean status = false;
         databaseId = extras.getInt(MainActivity.KEY_DATABASE_ID);
-        Todo databaseHandlerTodo = mDatabaseHandler.getTodo(databaseId);
+        final Todo databaseHandlerTodo = mDatabaseHandler.getTodo(databaseId);
         if (databaseId >= 0 && databaseHandlerTodo != null) {
             status = databaseHandlerTodo.isChecked();
             titleTv.setText(databaseHandlerTodo.getTitle());
@@ -139,7 +146,12 @@ public class CreateTodoActivity extends AppCompatActivity
                 todoUpdateValues.setTitle(titleTv.getText().toString());
                 todoUpdateValues.setNotes(descriptionTv.getText().toString());
                 todoUpdateValues.setChecked(finalStatus);
-                todoUpdateValues.setDateTimeRemainder(getDateTime(mDate, formatTime));
+                if (mDate == null) {
+//                    todoUpdateValues.setDateTimeRemainder(databaseHandlerTodo.getDateTimeRemainder());
+                    todoUpdateValues.setDateTimeRemainder(mDateAndTime.getText().toString());
+                } else {
+                    todoUpdateValues.setDateTimeRemainder(getDateTime(mDate, formatTime));
+                }
                 todoUpdateValues.setPriorityStatus(getPriorityCode());
                 mDatabaseHandler.updateTodoList(new Todo(databaseId, todoUpdateValues.getTitle(), todoUpdateValues.getNotes(), todoUpdateValues.isChecked(), todoUpdateValues.getDateTimeRemainder(), todoUpdateValues.getPriorityStatus()));
                 Intent createIntent = new Intent(CreateTodoActivity.this, MainActivity.class);
@@ -242,23 +254,37 @@ public class CreateTodoActivity extends AppCompatActivity
     }
 
     private void displayDateTimeAtBottomAfterSelection() {
-        if (mDate != null) {
+        if (dateSelector.getText().toString() != null || mDate != null) {
             mDateAndTime.setVisibility(View.VISIBLE);
-            if (formatTime == null)
+            if (formatTime == null) {
                 mDateAndTime.setText("  " + mDate);
-            else
+            } else if (dateSelector.getText().toString() != null && formatTime != null) {
+                mDateAndTime.setText("  " + dateSelector.getText().toString() + " " + formatTime);
+            } else {
                 mDateAndTime.setText("  " + mDate + " " + formatTime);
+            }
         } else {
             mDateAndTime.setVisibility(View.GONE);
         }
 
         if (mDate == null && formatTime != null) {
-            Toast.makeText(CreateTodoActivity.this, "Please select Date", Toast.LENGTH_LONG).show();
+            if (dateSelector.getText().toString().equals("Select Date")) {
+                Toast.makeText(CreateTodoActivity.this, "Please select Date", Toast.LENGTH_LONG).show();
+                mDateAndTime.setVisibility(View.GONE);
+                mDateAndTime.setText("");
+            }
+        }
+
+        if (mDate == null && formatTime != null) {
+            timeSelection.setText("");
+            mDateAndTime.setVisibility(View.GONE);
         }
 
         if (formatTime != null) {
-            timeSelection.setText(formatTime);
+            if (mDate != null || !dateSelector.getText().toString().equals("Select Date"))
+                timeSelection.setText(formatTime);
         }
+
     }
 
     private void initialiseDateTimeValuesFromDialog() {
@@ -279,9 +305,13 @@ public class CreateTodoActivity extends AppCompatActivity
             return;
         String dateTimeRemainder = todo.getDateTimeRemainder();
         if (dateTimeRemainder != null) {
-            String[] dateTimeSeparation = dateTimeRemainder.split("\\s+");
+            String[] dateTimeSeparation = dateTimeRemainder.trim().split("\\s+");
             String dateSeparationValue = dateTimeSeparation[0];
-            String timeSeparationValue = dateTimeSeparation[1];
+            String timeSeparationValue;
+            if (dateTimeSeparation.length == 1)
+                timeSeparationValue = getString(R.string.select_time);
+            else
+                timeSeparationValue = dateTimeSeparation[1];
 
             if (dateSeparationValue != null)
                 dateSelector.setText(dateSeparationValue);
@@ -349,17 +379,24 @@ public class CreateTodoActivity extends AppCompatActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (databaseId > 0) {
             Todo databaseHandlerTodo = mDatabaseHandler.getTodo(databaseId);
-            if (databaseId >= 0 && databaseHandlerTodo != null) {
-                String priorityStatusString = Util.getPriorityString(databaseHandlerTodo.getPriorityStatus());
-                MenuItem highMenuItem = menu.findItem(R.id.highChoice);
-                MenuItem mediumMenuItem = menu.findItem(R.id.mediumChoice);
-                MenuItem lowMenuItem = menu.findItem(R.id.lowChoice);
-                if (priorityStatusString.equals(PriorityStatusCode.HIGH.getPriorityStatus())) {
-                    highMenuItem.setChecked(true);
-                } else if (priorityStatusString.equals(PriorityStatusCode.MEDIUM.getPriorityStatus())) {
-                    mediumMenuItem.setChecked(true);
-                } else {
-                    lowMenuItem.setChecked(true);
+            if (databaseId > 0 && databaseHandlerTodo != null) {
+                int priorityStatus = databaseHandlerTodo.getPriorityStatus();
+                if (priorityStatus > 0 && priorityStatus < 4) {
+                    String priorityStatusString = Util.getPriorityString(priorityStatus);
+                    MenuItem highMenuItem = menu.findItem(R.id.highChoice);
+                    MenuItem mediumMenuItem = menu.findItem(R.id.mediumChoice);
+                    MenuItem lowMenuItem = menu.findItem(R.id.lowChoice);
+                    if (priorityStatusString.equals(PriorityStatusCode.HIGH.getPriorityStatus())) {
+                        highMenuItem.setChecked(true);
+                    } else if (priorityStatusString.equals(PriorityStatusCode.MEDIUM.getPriorityStatus())) {
+                        mediumMenuItem.setChecked(true);
+                    } else if (priorityStatusString.equals(PriorityStatusCode.LOW.getPriorityStatus())) {
+                        lowMenuItem.setChecked(true);
+                    } else {
+                        highMenuItem.setChecked(false);
+                        mediumMenuItem.setChecked(false);
+                        lowMenuItem.setChecked(false);
+                    }
                 }
             }
         }
@@ -377,24 +414,29 @@ public class CreateTodoActivity extends AppCompatActivity
     @Override
     public void onCompleteDateSelected(String date) {
         this.mDate = date;
-        if (mDate != null)
+        if (mDate != null) {
             dateSelector.setText(mDate);
-        else
+        } else {
             dateSelector.setText(R.string.select_date);
+        }
     }
 
     @Override
     public void onCompleteTimeSelected(String hours, String minutes) {
         this.mHours = hours;
         this.mMinutes = minutes;
-        formatTime = String.format(Locale.ENGLISH, "%02d:%02d", Integer.parseInt(mHours), Integer.parseInt(mMinutes));
-        if (mHours != null && mMinutes != null)
+
+        if (mHours != null && mMinutes != null) {
+            formatTime = String.format(Locale.ENGLISH, "%02d:%02d", Integer.parseInt(mHours), Integer.parseInt(mMinutes));
             timeSelection.setText(formatTime);
-        else
+        } else
             timeSelection.setText(R.string.select_time);
     }
 
     private String getDateTime(String date, String hours) {
+        if (date == null && hours != null)
+            return null;
+
         if (hours == null) {
             return date;
         } else {
