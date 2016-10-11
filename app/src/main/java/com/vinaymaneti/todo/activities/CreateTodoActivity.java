@@ -19,13 +19,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.vinaymaneti.todo.R;
 import com.vinaymaneti.todo.db.DatabaseHandler;
 import com.vinaymaneti.todo.fragments.DatePickerFragment;
-import com.vinaymaneti.todo.misc.PriorityStatusCode;
-import com.vinaymaneti.todo.R;
 import com.vinaymaneti.todo.fragments.TimePickerFragment;
-import com.vinaymaneti.todo.model.Todo;
+import com.vinaymaneti.todo.misc.PriorityStatusCode;
 import com.vinaymaneti.todo.misc.Util;
+import com.vinaymaneti.todo.model.Todo;
 
 import java.util.Locale;
 
@@ -47,6 +47,7 @@ public class CreateTodoActivity extends AppCompatActivity
     String mDate, mHours, mMinutes, formatTime;
     PriorityStatusCode priorityStatusCode = null;
     int priorityCode = 0;
+    String lastDateTimeValue = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,13 +147,28 @@ public class CreateTodoActivity extends AppCompatActivity
                 todoUpdateValues.setTitle(titleTv.getText().toString());
                 todoUpdateValues.setNotes(descriptionTv.getText().toString());
                 todoUpdateValues.setChecked(finalStatus);
-                if (mDate == null) {
-//                    todoUpdateValues.setDateTimeRemainder(databaseHandlerTodo.getDateTimeRemainder());
-                    todoUpdateValues.setDateTimeRemainder(mDateAndTime.getText().toString());
-                } else {
-                    todoUpdateValues.setDateTimeRemainder(getDateTime(mDate, formatTime));
-                }
-                todoUpdateValues.setPriorityStatus(getPriorityCode());
+                if (lastDateTimeValue == null)
+                    if (!mDateAndTime.getText().toString().isEmpty())
+                        todoUpdateValues.setDateTimeRemainder(mDateAndTime.getText().toString());
+                    else
+                        todoUpdateValues.setDateTimeRemainder(null);
+                else
+                    todoUpdateValues.setDateTimeRemainder(lastDateTimeValue);
+
+
+//                if (mDate == null) {
+////                    todoUpdateValues.setDateTimeRemainder(databaseHandlerTodo.getDateTimeRemainder());
+//                    todoUpdateValues.setDateTimeRemainder(mDateAndTime.getText().toString());
+//                } else {
+//                    todoUpdateValues.setDateTimeRemainder(getDateTime(mDate, formatTime));
+//                }
+
+
+                if (getPriorityCode() == 0) {
+                    todoUpdateValues.setPriorityStatus(databaseHandlerTodo.getPriorityStatus());
+                } else
+                    todoUpdateValues.setPriorityStatus(getPriorityCode());
+
                 mDatabaseHandler.updateTodoList(new Todo(databaseId, todoUpdateValues.getTitle(), todoUpdateValues.getNotes(), todoUpdateValues.isChecked(), todoUpdateValues.getDateTimeRemainder(), todoUpdateValues.getPriorityStatus()));
                 Intent createIntent = new Intent(CreateTodoActivity.this, MainActivity.class);
                 startActivity(createIntent);
@@ -217,7 +233,7 @@ public class CreateTodoActivity extends AppCompatActivity
         });
 
         builder.setTitle(R.string.add_remainder);
-        builder.setPositiveButton(R.string.c_string, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.c_OK, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 displayDateTimeAtBottomAfterSelection();
@@ -241,6 +257,7 @@ public class CreateTodoActivity extends AppCompatActivity
         if (todo == null)
             return;
 
+
         if (todo.getDateTimeRemainder() != null)
             mDateAndTime.setVisibility(View.VISIBLE);
         else
@@ -250,40 +267,93 @@ public class CreateTodoActivity extends AppCompatActivity
         formatTime = null;
         mHours = null;
         mMinutes = null;
+        lastDateTimeValue = null;
         dialog.dismiss();
     }
 
     private void displayDateTimeAtBottomAfterSelection() {
-        if (dateSelector.getText().toString() != null || mDate != null) {
+
+        if (mDate != null && formatTime != null) {
             mDateAndTime.setVisibility(View.VISIBLE);
-            if (formatTime == null) {
-                mDateAndTime.setText("  " + mDate);
-            } else if (dateSelector.getText().toString() != null && formatTime != null) {
-                mDateAndTime.setText("  " + dateSelector.getText().toString() + " " + formatTime);
+            mDateAndTime.setText(" " + mDate + " " + formatTime);
+            lastDateTimeValue = " " + mDate + " " + formatTime;
+        } else if (mDate != null && formatTime == null) {
+            mDateAndTime.setVisibility(View.VISIBLE);
+            if (timeSelection.getText().toString().equals("Select Time")) {
+                mDateAndTime.setText(" " + mDate);
+                lastDateTimeValue = " " + mDate;
             } else {
-                mDateAndTime.setText("  " + mDate + " " + formatTime);
+                mDateAndTime.setText(" " + mDate + " " + timeSelection.getText().toString());
+                lastDateTimeValue = " " + mDate + " " + timeSelection.getText().toString();
             }
-        } else {
+        } else if (mDate == null && dateSelector.getText().toString().equals("Select Date")) {
+            Toast.makeText(CreateTodoActivity.this, "Please select Date", Toast.LENGTH_LONG).show();
             mDateAndTime.setVisibility(View.GONE);
-        }
-
-        if (mDate == null && formatTime != null) {
-            if (dateSelector.getText().toString().equals("Select Date")) {
-                Toast.makeText(CreateTodoActivity.this, "Please select Date", Toast.LENGTH_LONG).show();
-                mDateAndTime.setVisibility(View.GONE);
-                mDateAndTime.setText("");
-            }
-        }
-
-        if (mDate == null && formatTime != null) {
-            timeSelection.setText("");
+            mDateAndTime.setText(null);
+        } else if (mDate != null && formatTime == null) {
+            mDateAndTime.setVisibility(View.VISIBLE);
+            mDateAndTime.setText(" " + mDate);
+            lastDateTimeValue = " " + mDate;
+        } else if (mDate != null && timeSelection.getText().toString() != null) {
+            mDateAndTime.setVisibility(View.VISIBLE);
+            mDateAndTime.setText(" " + mDate + " " + timeSelection.getText().toString());
+            lastDateTimeValue = " " + mDate + " " + timeSelection.getText().toString();
+        } else if (mDate == null && formatTime != null) {
+            mDateAndTime.setVisibility(View.VISIBLE);
+            mDateAndTime.setText(" " + dateSelector.getText().toString() + " " + formatTime);
+            lastDateTimeValue = " " + dateSelector.getText().toString() + " " + formatTime;
+        } else if (dateSelector.getText().toString() != null && timeSelection.getText().toString() != null) {
+            mDateAndTime.setVisibility(View.VISIBLE);
+            mDateAndTime.setText(" " + dateSelector.getText().toString() + " " + timeSelection.getText().toString());
+            lastDateTimeValue = " " + dateSelector.getText().toString() + " " + timeSelection.getText().toString();
+        } else if (mDate == null && dateSelector.getText().toString() != null) {
+            mDateAndTime.setVisibility(View.VISIBLE);
+            mDateAndTime.setText(" " + dateSelector.getText().toString());
+            lastDateTimeValue = " " + dateSelector.getText().toString();
+        } else
             mDateAndTime.setVisibility(View.GONE);
-        }
 
-        if (formatTime != null) {
-            if (mDate != null || !dateSelector.getText().toString().equals("Select Date"))
-                timeSelection.setText(formatTime);
-        }
+
+//        if (dateSelector.getText().toString() != null) {
+//            mDateAndTime.setVisibility(View.VISIBLE);
+//            if (dateSelector.getText().toString() != null && formatTime != null) {
+//                mDateAndTime.setText(" " + dateSelector.getText().toString() + " " + formatTime);
+//            } else if (formatTime == null && mDate != null) {
+//                mDateAndTime.setText(" " + mDate);
+//            } else if ((dateSelector.getText().toString() == null && mDate == null) || formatTime != null) {
+//                Toast.makeText(CreateTodoActivity.this, "Please select date", Toast.LENGTH_SHORT).show();
+//                mDateAndTime.setVisibility(View.GONE);
+//            } else if (dateSelector.getText().toString() != null && timeSelection.getText().toString() != null) {
+//                mDateAndTime.setText("   " + dateSelector.getText().toString() + " " + timeSelection.getText().toString());
+//            } else {
+//                mDateAndTime.setText(" " + mDate + " " + formatTime);
+//            }
+//        } else {
+////            if (mDate == null && formatTime != null) {
+////                timeSelection.setText("");
+////                mDateAndTime.setVisibility(View.GONE);
+////            }
+//            mDateAndTime.setVisibility(View.GONE);
+//        }
+//
+//        if (mDate == null && formatTime != null) {
+//            if (dateSelector.getText().toString() != null) {
+//                mDateAndTime.setVisibility(View.VISIBLE);
+//                mDateAndTime.setText(" " + dateSelector.getText().toString() + " " + formatTime);
+//            }
+//        }
+//
+//        if (dateSelector.getText().toString().equals("Select Date")) {
+//            Toast.makeText(CreateTodoActivity.this, "Please select Date", Toast.LENGTH_LONG).show();
+//            mDateAndTime.setVisibility(View.GONE);
+//            mDateAndTime.setText("");
+//        }
+//
+//
+//        if (formatTime != null) {
+//            if (mDate != null || !dateSelector.getText().toString().equals("Select Date"))
+//                timeSelection.setText(formatTime);
+//        }
 
     }
 

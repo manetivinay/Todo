@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements ClickListener {
             public void onClick(DialogInterface dialog, int which) {
                 mTodoAdapter.notifyDeleteItemToAdapter();
                 checkShowEmptyView(mTodoAdapter.getTodoList());
+                mTodoAdapter.notifyDataSetChanged();
                 Snackbar snackbar = Snackbar
                         .make(mToolbar, R.string.deleted_marked_task_message, Snackbar.LENGTH_LONG);
                 snackbar.show();

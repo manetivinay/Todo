@@ -61,6 +61,8 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
         if (priorityStatus > 0 && priorityStatus < 4) {
             holder.mPriorityLabel.setVisibility(View.VISIBLE);
             holder.mPriorityLabel.setText(Util.getPriorityString(priorityStatus).toUpperCase());
+        } else {
+            holder.mPriorityLabel.setVisibility(View.VISIBLE);
         }
     }
 
